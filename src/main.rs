@@ -1,7 +1,8 @@
 extern crate html5ever;
 #[macro_use(qualname,ns,atom)]
 extern crate string_cache;
-#[macro_use(format_tendril)] extern crate tendril;
+#[macro_use(format_tendril)]
+extern crate tendril;
 
 use html5ever::{ParseOpts, parse_document};
 use html5ever::tree_builder::TreeBuilderOpts;
@@ -13,6 +14,10 @@ use std::io;
 use html5ever::tree_builder::TreeSink;
 use html5ever::tree_builder::interface::NodeOrText;
 use tendril::Tendril;
+
+enum Section {
+    Package(Handle),
+}
 
 fn main() {
     let opts = ParseOpts {
@@ -30,9 +35,16 @@ fn main() {
     walkx(&dom.document, &mut sections);
 
     for section in sections {
-        let attr = html5ever::Attribute{name: qualname!("", "name"), value: format_tendril!("xxx")};
-        let myElement = dom.create_element(qualname!(html, "a"), vec![attr]);
-        dom.append(section, NodeOrText::AppendNode(myElement));
+        match section {
+            Section::Package(p) => {
+                let attr = html5ever::Attribute {
+                    name: qualname!("", "name"),
+                    value: format_tendril!("xxx"),
+                };
+                let myElement = dom.create_element(qualname!(html, "a"), vec![attr]);
+                dom.append(p, NodeOrText::AppendNode(myElement));
+            }
+        }
     }
 
     let mut bytes = vec![];
@@ -41,13 +53,14 @@ fn main() {
     println!("{}", result);
 }
 
-fn walkx(h :&Handle, sections :&mut Vec<Handle>) {
+fn walkx(h: &Handle, sections: &mut Vec<Section>) {
     let node = h.borrow();
     for e in node.children.iter() {
         walkx(e, sections);
         if let Element(ref qualname, _, _) = e.borrow().node {
-            sections.push(e.clone());
+            if qualname.local == string_cache::Atom::from("script") {
+                sections.push(Section::Package(e.clone()));
+            }
         }
     }
-    ;
 }
