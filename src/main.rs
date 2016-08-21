@@ -13,7 +13,7 @@ use html5ever::{ParseOpts, parse_document};
 use std::io;
 
 enum Section {
-    Package(Handle),
+    Method(Handle),
 }
 
 fn main() {
@@ -31,15 +31,24 @@ fn main() {
     let mut sections = vec![];
     walk(&dom.document, &mut sections);
 
+    let class_attr = html5ever::Attribute {
+        name: qualname!("", "class"),
+        value: format_tendril!("dashAnchor"),
+    };
+
+    // https://kapeli.com/docsets#tableofcontents
+    // https://kapeli.com/docsets#supportedentrytypes
     for section in sections {
         match section {
-            Section::Package(p) => {
-                let attr = html5ever::Attribute {
+            Section::Method(p) => {
+                let name_attr = html5ever::Attribute {
                     name: qualname!("", "name"),
-                    value: format_tendril!("xxx"),
+                    value: format_tendril!("//apple_ref/cpp/{}/{}", "entrytype", "entryname"),
                 };
-                let dash_link = dom.create_element(qualname!(html, "a"), vec![attr]);
-                dom.append_before_sibling(p, NodeOrText::AppendNode(dash_link));
+
+                let dash_link = dom.create_element(qualname!(html, "a"),
+                                                   vec![name_attr, class_attr.clone()]);
+                let _ = dom.append_before_sibling(p, NodeOrText::AppendNode(dash_link));
             }
         }
     }
@@ -54,9 +63,9 @@ fn walk(h: &Handle, sections: &mut Vec<Section>) {
     let node = h.borrow();
     for e in node.children.iter() {
         walk(e, sections);
-        if let Element(ref qualname, _, _) = e.borrow().node {
-            if qualname.local == string_cache::Atom::from("script") {
-                sections.push(Section::Package(e.clone()));
+        if let Element(ref qualname, _, ref attrs) = e.borrow().node {
+            if qualname.local == string_cache::Atom::from("h4") && attrs.iter().any(|ref x| x.name == qualname!("", "class") && x.value == format_tendril!("method")) {
+                sections.push(Section::Method(e.clone()));
             }
         }
     }
