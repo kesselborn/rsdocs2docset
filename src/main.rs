@@ -42,9 +42,9 @@ fn main() {
 }
 
 fn walkx(h :&Handle, sections :&mut Vec<Handle>) {
-    let document = h.borrow();
-    let html = document.children[0].borrow();
-    for e in html.children.iter() {
+    let node = h.borrow();
+    for e in node.children.iter() {
+        walkx(e, sections);
         if let Element(ref qualname, _, _) = e.borrow().node {
             sections.push(e.clone());
         }
