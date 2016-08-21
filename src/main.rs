@@ -4,16 +4,13 @@ extern crate string_cache;
 #[macro_use(format_tendril)]
 extern crate tendril;
 
-use html5ever::{ParseOpts, parse_document};
-use html5ever::tree_builder::TreeBuilderOpts;
-use html5ever::rcdom::{RcDom, Handle, Node};
 use html5ever::rcdom::NodeEnum::Element;
+use html5ever::rcdom::{RcDom, Handle};
 use html5ever::serialize::{SerializeOpts, serialize};
 use html5ever::tendril::TendrilSink;
+use html5ever::tree_builder::{TreeBuilderOpts, TreeSink, NodeOrText};
+use html5ever::{ParseOpts, parse_document};
 use std::io;
-use html5ever::tree_builder::TreeSink;
-use html5ever::tree_builder::interface::NodeOrText;
-use tendril::Tendril;
 
 enum Section {
     Package(Handle),
@@ -32,7 +29,7 @@ fn main() {
                       .unwrap();
 
     let mut sections = vec![];
-    walkx(&dom.document, &mut sections);
+    walk(&dom.document, &mut sections);
 
     for section in sections {
         match section {
@@ -41,8 +38,8 @@ fn main() {
                     name: qualname!("", "name"),
                     value: format_tendril!("xxx"),
                 };
-                let myElement = dom.create_element(qualname!(html, "a"), vec![attr]);
-                dom.append(p, NodeOrText::AppendNode(myElement));
+                let dash_link = dom.create_element(qualname!(html, "a"), vec![attr]);
+                dom.append_before_sibling(p, NodeOrText::AppendNode(dash_link));
             }
         }
     }
@@ -53,10 +50,10 @@ fn main() {
     println!("{}", result);
 }
 
-fn walkx(h: &Handle, sections: &mut Vec<Section>) {
+fn walk(h: &Handle, sections: &mut Vec<Section>) {
     let node = h.borrow();
     for e in node.children.iter() {
-        walkx(e, sections);
+        walk(e, sections);
         if let Element(ref qualname, _, _) = e.borrow().node {
             if qualname.local == string_cache::Atom::from("script") {
                 sections.push(Section::Package(e.clone()));
