@@ -26,23 +26,24 @@ fn main() {
                       .read_from(&mut stdin.lock())
                       .unwrap();
 
-    let mut x: Option<Handle> = None;
+    let mut sections = vec![];
     {
         let document = dom.document.borrow();
         let html = document.children[0].borrow();
         for e in html.children.iter() {
             if let Element(ref qualname, _, _) = e.borrow().node {
-                x = Some(e.clone());
-                break;
+                sections.push(e.clone());
             }
         }
     }
 
-    if let Some(xval) = x {
+
+    for section in sections {
         let attr = html5ever::Attribute{name: qualname!("", "name"), value: format_tendril!("xxx")};
         let myElement = dom.create_element(qualname!(html, "a"), vec![attr]);
-        dom.append(xval, NodeOrText::AppendNode(myElement));
+        dom.append(section, NodeOrText::AppendNode(myElement));
     }
+
     let mut bytes = vec![];
     serialize(&mut bytes, &dom.document, SerializeOpts::default()).unwrap();
     let result = String::from_utf8(bytes).unwrap();
