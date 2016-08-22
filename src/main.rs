@@ -29,14 +29,14 @@ fn main() {
                       .read_from(&mut stdin.lock())
                       .unwrap();
 
-    let entries = find_entries(&mut dom);
+    let entries = find_entry_elements(&mut dom);
 
     // https://kapeli.com/docsets#tableofcontents
     // https://kapeli.com/docsets#supportedentrytypes
     for entry in entries {
         match entry {
-            Entry::Method(p) => {
-                add_dash_link(&mut dom, &p, "method", "42")
+            Entry::Method(e) => {
+                add_dash_link_before_entry(&mut dom, &e, "method", "42")
             }
         }
     }
@@ -47,7 +47,7 @@ fn main() {
     println!("{}", result);
 }
 
-fn add_dash_link(dom: &mut RcDom, p: &Handle, entrytype: &str, entryname: &str) {
+fn add_dash_link_before_entry(dom: &mut RcDom, p: &Handle, entrytype: &str, entryname: &str) {
     let class_attr = html5ever::Attribute {
         name: qualname!("", "class"),
         value: format_tendril!("dashAnchor"),
@@ -62,7 +62,7 @@ fn add_dash_link(dom: &mut RcDom, p: &Handle, entrytype: &str, entryname: &str) 
     let _ = dom.append_before_sibling(p.clone(), NodeOrText::AppendNode(dash_link));
 }
 
-fn find_entries(dom: &mut RcDom) -> Vec<Entry> {
+fn find_entry_elements(dom: &mut RcDom) -> Vec<Entry> {
     let mut entries = vec![];
     walk_tree(&dom.document, &mut entries);
     entries
