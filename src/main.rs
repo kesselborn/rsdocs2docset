@@ -13,7 +13,7 @@ use html5ever::{ParseOpts, parse_document};
 use std::string::String;
 use std::io;
 
-enum Section {
+enum Entry {
     Method(Handle),
 }
 
@@ -29,14 +29,13 @@ fn main() {
                       .read_from(&mut stdin.lock())
                       .unwrap();
 
-    let mut sections = vec![];
-    walk(&dom.document, &mut sections);
+    let entries = find_entries(&mut dom);
 
     // https://kapeli.com/docsets#tableofcontents
     // https://kapeli.com/docsets#supportedentrytypes
-    for section in sections {
-        match section {
-            Section::Method(p) => {
+    for entry in entries {
+        match entry {
+            Entry::Method(p) => {
                 add_dash_link(&mut dom, &p, "method", "42")
             }
         }
@@ -63,17 +62,23 @@ fn add_dash_link(dom: &mut RcDom, p: &Handle, entrytype: &str, entryname: &str) 
     let _ = dom.append_before_sibling(p.clone(), NodeOrText::AppendNode(dash_link));
 }
 
-fn walk(h: &Handle, sections: &mut Vec<Section>) {
+fn find_entries(dom: &mut RcDom) -> Vec<Entry> {
+    let mut entries = vec![];
+    walk_tree(&dom.document, &mut entries);
+    entries
+}
+
+fn walk_tree(h: &Handle, entries: &mut Vec<Entry>) {
     let node = h.borrow();
     for e in node.children.iter() {
         if let Element(_, _, ref attrs) = e.borrow().node {
             if let Some(attr) = attrs.iter().find(|ref x| x.name == qualname!("", "class")) {
                 match attr.clone().value.to_string().as_str() {
-                    "method" => sections.push(Section::Method(e.clone())),
+                    "method" => entries.push(Entry::Method(e.clone())),
                     _ => {}
                 }
             }
         }
-        walk(e, sections);
+        walk_tree(e, entries);
     }
 }
