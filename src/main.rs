@@ -32,24 +32,12 @@ fn main() {
     let mut sections = vec![];
     walk(&dom.document, &mut sections);
 
-    let class_attr = html5ever::Attribute {
-        name: qualname!("", "class"),
-        value: format_tendril!("dashAnchor"),
-    };
-
     // https://kapeli.com/docsets#tableofcontents
     // https://kapeli.com/docsets#supportedentrytypes
     for section in sections {
         match section {
             Section::Method(p) => {
-                let name_attr = html5ever::Attribute {
-                    name: qualname!("", "name"),
-                    value: format_tendril!("//apple_ref/cpp/{}/{}", "entrytype", "entryname"),
-                };
-
-                let dash_link = dom.create_element(qualname!(html, "a"),
-                                                   vec![name_attr, class_attr.clone()]);
-                let _ = dom.append_before_sibling(p, NodeOrText::AppendNode(dash_link));
+                add_dash_link(&mut dom, &p, "method", "42")
             }
         }
     }
@@ -60,17 +48,32 @@ fn main() {
     println!("{}", result);
 }
 
+fn add_dash_link(dom: &mut RcDom, p: &Handle, entrytype: &str, entryname: &str) {
+    let class_attr = html5ever::Attribute {
+        name: qualname!("", "class"),
+        value: format_tendril!("dashAnchor"),
+    };
+
+    let name_attr = html5ever::Attribute {
+        name: qualname!("", "name"),
+        value: format_tendril!("//apple_ref/cpp/{}/{}", entrytype, entryname),
+    };
+
+    let dash_link = dom.create_element(qualname!(html, "a"), vec![name_attr, class_attr.clone()]);
+    let _ = dom.append_before_sibling(p.clone(), NodeOrText::AppendNode(dash_link));
+}
+
 fn walk(h: &Handle, sections: &mut Vec<Section>) {
     let node = h.borrow();
     for e in node.children.iter() {
-        walk(e, sections);
-        if let Element(_ , _, ref attrs) = e.borrow().node {
+        if let Element(_, _, ref attrs) = e.borrow().node {
             if let Some(attr) = attrs.iter().find(|ref x| x.name == qualname!("", "class")) {
                 match attr.clone().value.to_string().as_str() {
                     "method" => sections.push(Section::Method(e.clone())),
-                    _ => {},
+                    _ => {}
                 }
             }
         }
+        walk(e, sections);
     }
 }
