@@ -10,6 +10,7 @@ use html5ever::serialize::{SerializeOpts, serialize};
 use html5ever::tendril::TendrilSink;
 use html5ever::tree_builder::{TreeBuilderOpts, TreeSink, NodeOrText};
 use html5ever::{ParseOpts, parse_document};
+use std::string::String;
 use std::io;
 
 enum Section {
@@ -63,9 +64,12 @@ fn walk(h: &Handle, sections: &mut Vec<Section>) {
     let node = h.borrow();
     for e in node.children.iter() {
         walk(e, sections);
-        if let Element(ref qualname, _, ref attrs) = e.borrow().node {
-            if qualname.local == string_cache::Atom::from("h4") && attrs.iter().any(|ref x| x.name == qualname!("", "class") && x.value == format_tendril!("method")) {
-                sections.push(Section::Method(e.clone()));
+        if let Element(_ , _, ref attrs) = e.borrow().node {
+            if let Some(attr) = attrs.iter().find(|ref x| x.name == qualname!("", "class")) {
+                match attr.clone().value.to_string().as_str() {
+                    "method" => sections.push(Section::Method(e.clone())),
+                    _ => {},
+                }
             }
         }
     }
