@@ -14,7 +14,15 @@ use std::string::String;
 use std::io;
 
 enum Entry {
+    Const(Handle),
+    // Enum(Handle),
+    // Function(Handle),
+    // Macro(Handle),
     Method(Handle),
+    Module(Handle),
+    Struct(Handle),
+    Trait(Handle),
+    Type(Handle),
 }
 
 fn main() {
@@ -38,6 +46,7 @@ fn main() {
             Entry::Method(e) => {
                 add_dash_link_before_entry(&mut dom, &e, "method", "42")
             }
+            _ => {}
         }
     }
 
@@ -55,6 +64,7 @@ fn add_dash_link_before_entry(dom: &mut RcDom, p: &Handle, entrytype: &str, entr
 
     let name_attr = html5ever::Attribute {
         name: qualname!("", "name"),
+        // TODO: percent escape entryname
         value: format_tendril!("//apple_ref/cpp/{}/{}", entrytype, entryname),
     };
 
@@ -71,14 +81,102 @@ fn find_entry_elements(dom: &mut RcDom) -> Vec<Entry> {
 fn walk_tree(h: &Handle, entries: &mut Vec<Entry>) {
     let node = h.borrow();
     for e in node.children.iter() {
-        if let Element(_, _, ref attrs) = e.borrow().node {
-            if let Some(attr) = attrs.iter().find(|ref x| x.name == qualname!("", "class")) {
-                match attr.clone().value.to_string().as_str() {
-                    "method" => entries.push(Entry::Method(e.clone())),
-                    _ => {}
+        if let Element(ref name, _, ref attrs) = e.borrow().node {
+            if name.eq(&qualname!(html, "section")) {
+                let tag = &(*name.local.to_ascii_lowercase());
+                if let Some(attr) = attrs.iter().find(|ref x| x.name == qualname!("", "class")) {
+                    match (tag, attr.clone().value.to_string().as_str()) {
+                        ("h4", "method") => entries.push(Entry::Method(e.clone())),
+                        ("section", "content mod") => entries.push(Entry::Module(e.clone())),
+                        ("section", "content constant") => entries.push(Entry::Const(e.clone())),
+                        ("section", "content struct") => entries.push(Entry::Struct(e.clone())),
+                        ("section", "content trait") => entries.push(Entry::Trait(e.clone())),
+                        ("section", "type") => entries.push(Entry::Type(e.clone())),
+                        (_, _) => {}
+                    }
                 }
             }
         }
         walk_tree(e, entries);
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use html5ever::{ParseOpts, parse_document};
+    use html5ever::rcdom::{RcDom, Handle};
+    use tendril::TendrilSink;
+    use html5ever::tree_builder::TreeBuilderOpts;
+
+    fn dom_from_snippet(s: &str) -> Handle {
+        let opts = ParseOpts {
+            tree_builder: TreeBuilderOpts { drop_doctype: true, ..Default::default() },
+            ..Default::default()
+        };
+
+        let dom = parse_document(RcDom::default(), opts)
+                      .from_utf8()
+                      .read_from(&mut format!("<html><head></head><body>{}</body></html>", s)
+                                          .as_bytes())
+                      .unwrap();
+
+        dom.document
+    }
+
+    #[test]
+    fn it_extracts_name_for_const_correctly() {
+        let document_with_constant_section = dom_from_snippet("<section id=\"main\" \
+                                                               class=\"content constant\"> <h1 \
+                                                               class=\"fqn\"><span \
+                                                               class=\"in-band\"><a \
+                                                               href=\"../index.html\">alloc</a>::\
+                                                               <wbr><a href=\"index.\
+                                                               html\">boxed</a>::<wbr><a \
+                                                               class=\"constant\" \
+                                                               href=\"#\">HEAP</a></span><span \
+                                                               class=\"out-of-band\"><span \
+                                                               class=\"since\" title=\"Stable \
+                                                               since Rust version \
+                                                               \"></span><span \
+                                                               id=\"render-detail\"> <a \
+                                                               id=\"toggle-all-docs\" \
+                                                               href=\"javascript:void(0)\" \
+                                                               title=\"collapse all docs\"> \
+                                                               [<span class=\"inner\">−</span>] \
+                                                               </a> </span><a id=\"src-86\" \
+                                                               class=\"srclink\" \
+                                                               href=\"../..\
+                                                               /src/alloc/up/src/liballoc/boxed.\
+                                                               rs.html#91\" title=\"goto source \
+                                                               code\">[src]</a></span></h1></sect\
+                                                               ion>");
+
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&document_with_constant_section, &mut entries);
+
+        assert_eq!(entries.len(), 1);
+        match entries[0] {
+            super::Entry::Const(_) => assert!(true),
+            _ => assert!(false),
+        }
+    }
+}
+
+// const:
+
+// enum: <section id="main" class="content enum"><h1 class="fqn"><span class="in-band">Enum <a href="../index.html">collections</a>::<wbr><a href="index-2.html">borrow</a>::<wbr><a class="enum" href="#">Cow</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-2309" class="srclink" href="../../src/collections/up/src/libcollections/borrow.rs.html#106-118" title="goto source code">[src]</a></span></h1></section>
+
+// function: <section id="main" class="content fn"><h1 class="fqn"><span class="in-band">Function <a href="../index.html">std</a>::<wbr><a href="index-2.html">fs</a>::<wbr><a class="fn" href="#">metadata</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-3833" class="srclink" href="../../src/std/up/src/libstd/fs.rs.html#933-935" title="goto source code">[src]</a></span></h1></section>
+
+// macro: <section id="main" class="content macro"> // <h1 class="fqn"><span class="in-band"><a href="index-2.html">std</a>::<wbr><a class="macro" href="#">println!</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-15389" class="srclink" href="../src/std/up/src/libstd/macros.rs.html#118-121" title="goto source code">[src]</a></span></h1></section>
+
+// method: <h4 id="method.hash" class="method"><code>fn <a href="../../core/hash/trait.Hash.html#tymethod.hash" class="fnname">hash</a>&lt;H:&nbsp;<a class="trait" href="../../core/hash/trait.Hasher.html" title="core::hash::Hasher">Hasher</a>&gt;(&amp;self, state: &amp;mut H)</code><a href="javascript:void(0)" class="collapse-toggle">[<span class="inner">−</span>]</a></h4>
+
+// modules: <section id="main" class="content mod"> <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">collections</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version "></span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-0" class="srclink" href="../src/collections/up/src/libcollections/lib.rs.html#11-140" title="goto source code">[src]</a></span></h1></section>
+
+// struct: <section id="main" class="content struct"> <h1 class="fqn"><span class="in-band">Struct <a href="../index.html">std</a>::<wbr><a href="index-2.html">io</a>::<wbr><a class="struct" href="#">Bytes</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-5013" class="srclink" href="../../src/std/up/src/libstd/io/mod.rs.html#1532-1534" title="goto source code">[src]</a></span></h1></section>
+
+// trait: <section id="main" class="content trait"> <h1 class="fqn"><span class="in-band">Trait <a href="../index.html">collections</a>::<wbr><a href="index-2.html">fmt</a>::<wbr><a class="trait" href="#">Binary</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-38600" class="srclink" href="../../core/fmt/trait.Binary74db.html?gotosrc=38600" title="goto source code">[src]</a></span></h1></section>
+
+// type: <h4 id="associatedtype.Output" class="type"><code>type <a href="../std/ops/trait.Not.html#associatedtype.Output" class="type">Output</a> = <a class="primitive" href="primitive.bool.html">bool</a></code></h4>
