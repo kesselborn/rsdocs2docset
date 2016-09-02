@@ -171,7 +171,22 @@ mod tests {
     #[test]
     fn it_extracts_name_for_const_correctly() {
         // alloc::boxed::HEAP constant, entry name: HEAP
-        let document_with_constant_section = dom_from_snippet("<section id=\"main\" class=\"content constant\"> <h1 class=\"fqn\"><span class=\"in-band\"><a href=\"../index.html\">alloc</a>::<wbr><a href=\"index.html\">boxed</a>::<wbr><a class=\"constant\" href=\"#\">HEAP</a></span><span class=\"out-of-band\"><span class=\"since\" title=\"Stable since Rust version \"></span><span id=\"render-detail\"> <a id=\"toggle-all-docs\" href=\"javascript:void(0)\" title=\"collapse all docs\"> [<span class=\"inner\">−</span>] </a> </span><a id=\"src-86\" class=\"srclink\" href=\"../../src/alloc/up/src/liballoc/boxed.rs.html#91\" title=\"goto source code\">[src]</a></span></h1></section>");
+        let document_with_constant_section = dom_from_snippet(r##"
+          <section id="main" class="content constant">
+            <h1 class="fqn">
+              <span class="in-band">
+                <a href="../index.html">alloc</a>::<wbr><a href="index.html">boxed</a>::<wbr><a class="constant" href="#">HEAP</a>
+              </span>
+              <span class="out-of-band">
+                <span class="since" title="Stable since Rust version "></span>
+                <span id="render-detail">
+                  <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a>
+                </span>
+                <a id="src-86" class="srclink" href="../../src/alloc/up/src/liballoc/boxed.rs.html#91" title="goto source code">[src]</a>
+              </span>
+            </h1>
+          </section>
+        "##);
 
         let mut entries: Vec<super::Entry> = Vec::new();
         super::walk_tree(&document_with_constant_section, &mut entries);
@@ -191,7 +206,20 @@ mod tests {
     #[test]
     fn it_extracts_name_for_enum_correctly() {
         // collections::borrow::Cow, entry name: Cow
-        let document_with_enum_section = dom_from_snippet("<section id=\"main\" class=\"content enum\"><h1 class=\"fqn\"><span class=\"in-band\">Enum <a href=\"../index.html\">collections</a>::<wbr><a href=\"index-2.html\">borrow</a>::<wbr><a class=\"enum\" href=\"#\">Cow</a></span><span class=\"out-of-band\"><span class=\"since\" title=\"Stable since Rust version 1.0.0\">1.0.0</span><span id=\"render-detail\"> <a id=\"toggle-all-docs\" href=\"javascript:void(0)\" title=\"collapse all docs\"> [<span class=\"inner\">−</span>] </a> </span><a id=\"src-2309\" class=\"srclink\" href=\"../../src/collections/up/src/libcollections/borrow.rs.html#106-118\" title=\"goto source code\">[src]</a></span></h1></section>");
+        let document_with_enum_section = dom_from_snippet(r##"
+          <section id="main" class="content enum">
+            <h1 class="fqn">
+              <span class="in-band">Enum <a href="../index.html">collections</a>::<wbr><a href="index-2.html">borrow</a>::<wbr><a class="enum" href="#">Cow</a></span>
+              <span class="out-of-band">
+                <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
+                <span id="render-detail">
+                  <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> 
+                </span>
+                <a id="src-2309" class="srclink" href="../../src/collections/up/src/libcollections/borrow.rs.html#106-118" title="goto source code">[src]</a>
+              </span>
+            </h1>
+          </section>
+        "##);
 
         let mut entries: Vec<super::Entry> = Vec::new();
         super::walk_tree(&document_with_enum_section, &mut entries);
