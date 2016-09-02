@@ -87,6 +87,7 @@ fn walk_tree(h: &Handle, entries: &mut Vec<Entry>) {
             if let Some(attr) = attrs.iter().find(|ref x| x.name == qualname!("", "class")) {
                 match (tag, attr.clone().value.to_string().as_str()) {
                     ("h4", "method") => entries.push(Entry::Method(e.clone())),
+                    ("h4", "type") => entries.push(Entry::Type(e.clone())),
                     ("section", "content constant") => entries.push(Entry::Const(e.clone())),
                     ("section", "content enum") => entries.push(Entry::Enum(e.clone())),
                     ("section", "content fn") => entries.push(Entry::Function(e.clone())),
@@ -94,7 +95,6 @@ fn walk_tree(h: &Handle, entries: &mut Vec<Entry>) {
                     ("section", "content mod") => entries.push(Entry::Module(e.clone())),
                     ("section", "content struct") => entries.push(Entry::Struct(e.clone())),
                     ("section", "content trait") => entries.push(Entry::Trait(e.clone())),
-                    ("section", "type") => entries.push(Entry::Type(e.clone())),
                     (_, _) => {}
                 }
             }
@@ -173,7 +173,11 @@ fn extract_entry_name(e: &Entry) -> Option<String> {
                 return get_text(&e);
             }
         }
-        _ => (),
+        Entry::Type(ref e) => {
+            if let Some(e) = find_element_with_class(e, "type") {
+                return get_text(&e);
+            }
+        }
     }
     None
 }
@@ -453,8 +457,27 @@ mod tests {
         }
     }
 
+    #[test]
+    fn it_extracts_name_for_type_correctly() {
+        // Type Trait collections::fmt::Binary / Output, entry name: Output
+        let document_with_type_section = dom_from_snippet(r##"
+          <h4 id="associatedtype.Output" class="type">
+            <code>type <a href="../std/ops/trait.Not.html#associatedtype.Output" class="type">Output</a> = <a class="primitive" href="primitive.bool.html">bool</a></code>
+          </h4>
+        "##);
 
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&document_with_type_section, &mut entries);
 
+        assert_eq!(entries.len(), 1);
+        match entries[0] {
+            super::Entry::Type(_) => assert!(true),
+            _ => assert!(false),
+        }
 
-// type: <h4 id="associatedtype.Output" class="type"><code>type <a href="../std/ops/trait.Not.html#associatedtype.Output" class="type">Output</a> = <a class="primitive" href="primitive.bool.html">bool</a></code></h4>
+        match super::extract_entry_name(&entries[0]) {
+            Some(s) => assert_eq!(s, *"Output".to_string()),
+            None => assert_eq!(true, false),
+        }
+    }
 }
