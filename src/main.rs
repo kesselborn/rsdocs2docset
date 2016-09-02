@@ -163,6 +163,11 @@ fn extract_entry_name(e: &Entry) -> Option<String> {
                 return get_text(&e);
             }
         }
+        Entry::Struct(ref e) => {
+            if let Some(e) = find_element_with_class(e, "struct") {
+                return get_text(&e);
+            }
+        }
         _ => (),
     }
     None
@@ -379,10 +384,40 @@ mod tests {
         }
     }
 
+    #[test]
+    fn it_extracts_name_for_struct_correctly() {
+        // Struct collections::str::Bytes,  entry name: Bytes
+        let document_with_struct_section = dom_from_snippet(r##"
+          <section id="main" class="content struct">
+            <h1 class="fqn">
+              <span class="in-band">Struct <a href="../index.html">std</a>::<wbr><a href="index-2.html">io</a>::<wbr><a class="struct" href="#">Bytes</a></span>
+              <span class="out-of-band">
+                <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
+                <span id="render-detail">
+                  <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a>
+                </span>
+                <a id="src-5013" class="srclink" href="../../src/std/up/src/libstd/io/mod.rs.html#1532-1534" title="goto source code">[src]</a>
+              </span>
+            </h1>
+          </section>
+        "##);
+
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&document_with_struct_section, &mut entries);
+
+        assert_eq!(entries.len(), 1);
+        match entries[0] {
+            super::Entry::Struct(_) => assert!(true),
+            _ => assert!(false),
+        }
+
+        match super::extract_entry_name(&entries[0]) {
+            Some(s) => assert_eq!(s, *"Bytes".to_string()),
+            None => assert_eq!(true, false),
+        }
+    }
 
 
-
-// struct: <section id="main" class="content struct"> <h1 class="fqn"><span class="in-band">Struct <a href="../index.html">std</a>::<wbr><a href="index-2.html">io</a>::<wbr><a class="struct" href="#">Bytes</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-5013" class="srclink" href="../../src/std/up/src/libstd/io/mod.rs.html#1532-1534" title="goto source code">[src]</a></span></h1></section>
 
 // trait: <section id="main" class="content trait"> <h1 class="fqn"><span class="in-band">Trait <a href="../index.html">collections</a>::<wbr><a href="index-2.html">fmt</a>::<wbr><a class="trait" href="#">Binary</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-38600" class="srclink" href="../../core/fmt/trait.Binary74db.html?gotosrc=38600" title="goto source code">[src]</a></span></h1></section>
 
