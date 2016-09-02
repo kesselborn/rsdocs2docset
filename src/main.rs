@@ -16,7 +16,7 @@ use std::string::String;
 
 enum Entry {
     Const(Handle),
-    // Enum(Handle),
+    Enum(Handle),
     // Function(Handle),
     // Macro(Handle),
     Method(Handle),
@@ -87,8 +87,9 @@ fn walk_tree(h: &Handle, entries: &mut Vec<Entry>) {
             if let Some(attr) = attrs.iter().find(|ref x| x.name == qualname!("", "class")) {
                 match (tag, attr.clone().value.to_string().as_str()) {
                     ("h4", "method") => entries.push(Entry::Method(e.clone())),
-                    ("section", "content mod") => entries.push(Entry::Module(e.clone())),
                     ("section", "content constant") => entries.push(Entry::Const(e.clone())),
+                    ("section", "content enum") => entries.push(Entry::Enum(e.clone())),
+                    ("section", "content mod") => entries.push(Entry::Module(e.clone())),
                     ("section", "content struct") => entries.push(Entry::Struct(e.clone())),
                     ("section", "content trait") => entries.push(Entry::Trait(e.clone())),
                     ("section", "type") => entries.push(Entry::Type(e.clone())),
@@ -128,7 +129,17 @@ fn extract_entry_name(e: &Entry, class: &str) -> Option<String> {
                     }
                 }
             }
-        }
+        },
+        Entry::Enum(ref c) => {
+            if let Some(e) = find_element_with_class(c, class) {
+                let node = e.borrow();
+                for e in node.children.iter() {
+                    if let Text(ref t) = e.borrow().node {
+                        return Some(t.to_string());
+                    }
+                }
+            }
+        },
         _ => (),
     }
     None
@@ -175,9 +186,28 @@ mod tests {
             None => assert_eq!(true, false),
         }
     }
+
+    #[test]
+    fn it_extracts_name_for_enum_correctly() {
+        // collections::borrow::Cow, entry name: Cow
+        let document_with_enum_section = dom_from_snippet("<section id=\"main\" class=\"content enum\"><h1 class=\"fqn\"><span class=\"in-band\">Enum <a href=\"../index.html\">collections</a>::<wbr><a href=\"index-2.html\">borrow</a>::<wbr><a class=\"enum\" href=\"#\">Cow</a></span><span class=\"out-of-band\"><span class=\"since\" title=\"Stable since Rust version 1.0.0\">1.0.0</span><span id=\"render-detail\"> <a id=\"toggle-all-docs\" href=\"javascript:void(0)\" title=\"collapse all docs\"> [<span class=\"inner\">−</span>] </a> </span><a id=\"src-2309\" class=\"srclink\" href=\"../../src/collections/up/src/libcollections/borrow.rs.html#106-118\" title=\"goto source code\">[src]</a></span></h1></section>");
+
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&document_with_enum_section, &mut entries);
+
+        assert_eq!(entries.len(), 1);
+        match entries[0] {
+            super::Entry::Enum(_) => assert!(true),
+            _ => assert!(false),
+        }
+
+        match super::extract_entry_name(&entries[0], "enum") {
+            Some(s) => assert_eq!(s, *"Cow".to_string()),
+            None => assert_eq!(true, false),
+        }
+    }
 }
 
-// enum: <section id="main" class="content enum"><h1 class="fqn"><span class="in-band">Enum <a href="../index.html">collections</a>::<wbr><a href="index-2.html">borrow</a>::<wbr><a class="enum" href="#">Cow</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-2309" class="srclink" href="../../src/collections/up/src/libcollections/borrow.rs.html#106-118" title="goto source code">[src]</a></span></h1></section>
 
 // function: <section id="main" class="content fn"><h1 class="fqn"><span class="in-band">Function <a href="../index.html">std</a>::<wbr><a href="index-2.html">fs</a>::<wbr><a class="fn" href="#">metadata</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-3833" class="srclink" href="../../src/std/up/src/libstd/fs.rs.html#933-935" title="goto source code">[src]</a></span></h1></section>
 
