@@ -17,8 +17,8 @@ use std::string::String;
 enum Entry {
     Const(Handle),
     Enum(Handle),
-    // Function(Handle),
-    // Macro(Handle),
+    Function(Handle),
+    Macro(Handle),
     Method(Handle),
     Module(Handle),
     Struct(Handle),
@@ -89,6 +89,8 @@ fn walk_tree(h: &Handle, entries: &mut Vec<Entry>) {
                     ("h4", "method") => entries.push(Entry::Method(e.clone())),
                     ("section", "content constant") => entries.push(Entry::Const(e.clone())),
                     ("section", "content enum") => entries.push(Entry::Enum(e.clone())),
+                    ("section", "content fn") => entries.push(Entry::Function(e.clone())),
+                    ("section", "content macro") => entries.push(Entry::Macro(e.clone())),
                     ("section", "content mod") => entries.push(Entry::Module(e.clone())),
                     ("section", "content struct") => entries.push(Entry::Struct(e.clone())),
                     ("section", "content trait") => entries.push(Entry::Trait(e.clone())),
@@ -138,6 +140,16 @@ fn extract_entry_name(e: &Entry) -> Option<String> {
         }
         Entry::Enum(ref e) => {
             if let Some(e) = find_element_with_class(e, "enum") {
+                return get_text(&e);
+            }
+        }
+        Entry::Function(ref e) => {
+            if let Some(e) = find_element_with_class(e, "fn") {
+                return get_text(&e);
+            }
+        }
+        Entry::Macro(ref e) => {
+            if let Some(e) = find_element_with_class(e, "macro") {
                 return get_text(&e);
             }
         }
@@ -235,12 +247,72 @@ mod tests {
             None => assert_eq!(true, false),
         }
     }
-}
+
+    #[test]
+    fn it_extracts_name_for_function_correctly() {
+        // Function std::fs::metadata, entry name: metadata
+        let document_with_function_section = dom_from_snippet(r##"
+          <section id="main" class="content fn">
+            <h1 class="fqn">
+              <span class="in-band">Function <a href="../index.html">std</a>::<wbr><a href="index-2.html">fs</a>::<wbr><a class="fn" href="#">metadata</a></span>
+              <span class="out-of-band">
+                <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
+                <span id="render-detail">
+                  <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a>
+                </span>
+                <a id="src-3833" class="srclink" href="../../src/std/up/src/libstd/fs.rs.html#933-935" title="goto source code">[src]</a>
+              </span>
+            </h1>
+          </section>
+        "##);
+
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&document_with_function_section, &mut entries);
+
+        assert_eq!(entries.len(), 1);
+        match entries[0] {
+            super::Entry::Function(_) => assert!(true),
+            _ => assert!(false),
+        }
+
+        match super::extract_entry_name(&entries[0]) {
+            Some(s) => assert_eq!(s, *"metadata".to_string()),
+            None => assert_eq!(true, false),
+        }
+    }
 
 
-// function: <section id="main" class="content fn"><h1 class="fqn"><span class="in-band">Function <a href="../index.html">std</a>::<wbr><a href="index-2.html">fs</a>::<wbr><a class="fn" href="#">metadata</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-3833" class="srclink" href="../../src/std/up/src/libstd/fs.rs.html#933-935" title="goto source code">[src]</a></span></h1></section>
+    #[test]
+    fn it_extracts_name_for_macro_correctly() {
+        // Macro std::println!, entry name: println!
+        let document_with_macro_section = dom_from_snippet(r##"
+          <section id="main" class="content macro">
+            <h1 class="fqn">
+              <span class="in-band"><a href="index-2.html">std</a>::<wbr><a class="macro" href="#">println!</a></span>
+              <span class="out-of-band">
+                <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
+                <span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span>
+                <a id="src-15389" class="srclink" href="../src/std/up/src/libstd/macros.rs.html#118-121" title="goto source code">[src]</a>
+              </span>
+            </h1>
+          </section>
+        "##);
 
-// macro: <section id="main" class="content macro"> // <h1 class="fqn"><span class="in-band"><a href="index-2.html">std</a>::<wbr><a class="macro" href="#">println!</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-15389" class="srclink" href="../src/std/up/src/libstd/macros.rs.html#118-121" title="goto source code">[src]</a></span></h1></section>
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&document_with_macro_section, &mut entries);
+
+        assert_eq!(entries.len(), 1);
+        match entries[0] {
+            super::Entry::Macro(_) => assert!(true),
+            _ => assert!(false),
+        }
+
+        match super::extract_entry_name(&entries[0]) {
+            Some(s) => assert_eq!(s, *"println!".to_string()),
+            None => assert_eq!(true, false),
+        }
+    }
+
 
 // method: <h4 id="method.hash" class="method"><code>fn <a href="../../core/hash/trait.Hash.html#tymethod.hash" class="fnname">hash</a>&lt;H:&nbsp;<a class="trait" href="../../core/hash/trait.Hasher.html" title="core::hash::Hasher">Hasher</a>&gt;(&amp;self, state: &amp;mut H)</code><a href="javascript:void(0)" class="collapse-toggle">[<span class="inner">−</span>]</a></h4>
 
@@ -251,3 +323,4 @@ mod tests {
 // trait: <section id="main" class="content trait"> <h1 class="fqn"><span class="in-band">Trait <a href="../index.html">collections</a>::<wbr><a href="index-2.html">fmt</a>::<wbr><a class="trait" href="#">Binary</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-38600" class="srclink" href="../../core/fmt/trait.Binary74db.html?gotosrc=38600" title="goto source code">[src]</a></span></h1></section>
 
 // type: <h4 id="associatedtype.Output" class="type"><code>type <a href="../std/ops/trait.Not.html#associatedtype.Output" class="type">Output</a> = <a class="primitive" href="primitive.bool.html">bool</a></code></h4>
+}
