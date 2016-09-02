@@ -148,6 +148,11 @@ fn extract_entry_name(e: &Entry) -> Option<String> {
                 return get_text(&e);
             }
         }
+        Entry::Method(ref e) => {
+            if let Some(e) = find_element_with_class(e, "fnname") {
+                return get_text(&e);
+            }
+        }
         Entry::Macro(ref e) => {
             if let Some(e) = find_element_with_class(e, "macro") {
                 return get_text(&e);
@@ -313,8 +318,32 @@ mod tests {
         }
     }
 
+    #[test]
+    fn it_extracts_name_for_method_correctly() {
+        // Method Hash::hash, entry name: hash
+        let document_with_method_section = dom_from_snippet(r##"
+          <h4 id="method.hash" class="method">
+            <code>fn <a href="../../core/hash/trait.Hash.html#tymethod.hash" class="fnname">hash</a>&lt;H:&nbsp;<a class="trait" href="../../core/hash/trait.Hasher.html" title="core::hash::Hasher">Hasher</a>&gt;(&amp;self, state: &amp;mut H)</code>
+            <a href="javascript:void(0)" class="collapse-toggle">[<span class="inner">−</span>]</a>
+          </h4>
+        "##);
 
-// method: <h4 id="method.hash" class="method"><code>fn <a href="../../core/hash/trait.Hash.html#tymethod.hash" class="fnname">hash</a>&lt;H:&nbsp;<a class="trait" href="../../core/hash/trait.Hasher.html" title="core::hash::Hasher">Hasher</a>&gt;(&amp;self, state: &amp;mut H)</code><a href="javascript:void(0)" class="collapse-toggle">[<span class="inner">−</span>]</a></h4>
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&document_with_method_section, &mut entries);
+
+        assert_eq!(entries.len(), 1);
+        match entries[0] {
+            super::Entry::Method(_) => assert!(true),
+            _ => assert!(false),
+        }
+
+        match super::extract_entry_name(&entries[0]) {
+            Some(s) => assert_eq!(s, *"hash".to_string()),
+            None => assert_eq!(true, false),
+        }
+    }
+
+
 
 // modules: <section id="main" class="content mod"> <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">collections</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version "></span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-0" class="srclink" href="../src/collections/up/src/libcollections/lib.rs.html#11-140" title="goto source code">[src]</a></span></h1></section>
 
