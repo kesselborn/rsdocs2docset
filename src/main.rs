@@ -4,14 +4,15 @@ extern crate string_cache;
 #[macro_use(format_tendril)]
 extern crate tendril;
 
-use html5ever::rcdom::NodeEnum::Element;
-use html5ever::rcdom::{RcDom, Handle};
+use html5ever::rcdom::NodeEnum::{Element, Text};
+use html5ever::rcdom::{Handle, RcDom};
 use html5ever::serialize::{SerializeOpts, serialize};
 use html5ever::tendril::TendrilSink;
-use html5ever::tree_builder::{TreeBuilderOpts, TreeSink, NodeOrText};
+use html5ever::tree_builder::{NodeOrText, TreeBuilderOpts, TreeSink};
 use html5ever::{ParseOpts, parse_document};
-use std::string::String;
+
 use std::io;
+use std::string::String;
 
 enum Entry {
     Const(Handle),
@@ -82,18 +83,16 @@ fn walk_tree(h: &Handle, entries: &mut Vec<Entry>) {
     let node = h.borrow();
     for e in node.children.iter() {
         if let Element(ref name, _, ref attrs) = e.borrow().node {
-            if name.eq(&qualname!(html, "section")) {
-                let tag = &(*name.local.to_ascii_lowercase());
-                if let Some(attr) = attrs.iter().find(|ref x| x.name == qualname!("", "class")) {
-                    match (tag, attr.clone().value.to_string().as_str()) {
-                        ("h4", "method") => entries.push(Entry::Method(e.clone())),
-                        ("section", "content mod") => entries.push(Entry::Module(e.clone())),
-                        ("section", "content constant") => entries.push(Entry::Const(e.clone())),
-                        ("section", "content struct") => entries.push(Entry::Struct(e.clone())),
-                        ("section", "content trait") => entries.push(Entry::Trait(e.clone())),
-                        ("section", "type") => entries.push(Entry::Type(e.clone())),
-                        (_, _) => {}
-                    }
+            let tag = &(*name.local.to_ascii_lowercase());
+            if let Some(attr) = attrs.iter().find(|ref x| x.name == qualname!("", "class")) {
+                match (tag, attr.clone().value.to_string().as_str()) {
+                    ("h4", "method") => entries.push(Entry::Method(e.clone())),
+                    ("section", "content mod") => entries.push(Entry::Module(e.clone())),
+                    ("section", "content constant") => entries.push(Entry::Const(e.clone())),
+                    ("section", "content struct") => entries.push(Entry::Struct(e.clone())),
+                    ("section", "content trait") => entries.push(Entry::Trait(e.clone())),
+                    ("section", "type") => entries.push(Entry::Type(e.clone())),
+                    (_, _) => {}
                 }
             }
         }
@@ -101,11 +100,44 @@ fn walk_tree(h: &Handle, entries: &mut Vec<Entry>) {
     }
 }
 
+fn find_element_with_class(h: &Handle, c: &str) -> Option<Handle> {
+    let node = h.borrow();
+    for e in node.children.iter() {
+        if let Element(_, _, ref attrs) = e.borrow().node {
+            if let Some(attr) = attrs.iter().find(|ref x| x.name == qualname!("", "class")) {
+                if attr.clone().value.to_string() == c {
+                    return Some(e.clone());
+                }
+            }
+        }
+        if let Some(e) = find_element_with_class(e, c) {
+            return Some(e);
+        }
+    }
+    return None;
+}
+
+fn extract_entry_name(e: &Entry, class: &str) -> Option<String> {
+    match *e {
+        Entry::Const(ref c) => {
+            if let Some(e) = find_element_with_class(c, class) {
+                let node = e.borrow();
+                for e in node.children.iter() {
+                    if let Text(ref t) = e.borrow().node {
+                        return Some(t.to_string());
+                    }
+                }
+            }
+        }
+        _ => (),
+    }
+    None
+}
 
 #[cfg(test)]
 mod tests {
     use html5ever::{ParseOpts, parse_document};
-    use html5ever::rcdom::{RcDom, Handle};
+    use html5ever::rcdom::{Handle, RcDom};
     use tendril::TendrilSink;
     use html5ever::tree_builder::TreeBuilderOpts;
 
@@ -126,31 +158,8 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_const_correctly() {
-        let document_with_constant_section = dom_from_snippet("<section id=\"main\" \
-                                                               class=\"content constant\"> <h1 \
-                                                               class=\"fqn\"><span \
-                                                               class=\"in-band\"><a \
-                                                               href=\"../index.html\">alloc</a>::\
-                                                               <wbr><a href=\"index.\
-                                                               html\">boxed</a>::<wbr><a \
-                                                               class=\"constant\" \
-                                                               href=\"#\">HEAP</a></span><span \
-                                                               class=\"out-of-band\"><span \
-                                                               class=\"since\" title=\"Stable \
-                                                               since Rust version \
-                                                               \"></span><span \
-                                                               id=\"render-detail\"> <a \
-                                                               id=\"toggle-all-docs\" \
-                                                               href=\"javascript:void(0)\" \
-                                                               title=\"collapse all docs\"> \
-                                                               [<span class=\"inner\">−</span>] \
-                                                               </a> </span><a id=\"src-86\" \
-                                                               class=\"srclink\" \
-                                                               href=\"../..\
-                                                               /src/alloc/up/src/liballoc/boxed.\
-                                                               rs.html#91\" title=\"goto source \
-                                                               code\">[src]</a></span></h1></sect\
-                                                               ion>");
+        // alloc::boxed::HEAP constant, entry name: HEAP
+        let document_with_constant_section = dom_from_snippet("<section id=\"main\" class=\"content constant\"> <h1 class=\"fqn\"><span class=\"in-band\"><a href=\"../index.html\">alloc</a>::<wbr><a href=\"index.html\">boxed</a>::<wbr><a class=\"constant\" href=\"#\">HEAP</a></span><span class=\"out-of-band\"><span class=\"since\" title=\"Stable since Rust version \"></span><span id=\"render-detail\"> <a id=\"toggle-all-docs\" href=\"javascript:void(0)\" title=\"collapse all docs\"> [<span class=\"inner\">−</span>] </a> </span><a id=\"src-86\" class=\"srclink\" href=\"../../src/alloc/up/src/liballoc/boxed.rs.html#91\" title=\"goto source code\">[src]</a></span></h1></section>");
 
         let mut entries: Vec<super::Entry> = Vec::new();
         super::walk_tree(&document_with_constant_section, &mut entries);
@@ -160,10 +169,13 @@ mod tests {
             super::Entry::Const(_) => assert!(true),
             _ => assert!(false),
         }
+
+        match super::extract_entry_name(&entries[0], "constant") {
+            Some(s) => assert_eq!(s, *"HEAP".to_string()),
+            None => assert_eq!(true, false),
+        }
     }
 }
-
-// const:
 
 // enum: <section id="main" class="content enum"><h1 class="fqn"><span class="in-band">Enum <a href="../index.html">collections</a>::<wbr><a href="index-2.html">borrow</a>::<wbr><a class="enum" href="#">Cow</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-2309" class="srclink" href="../../src/collections/up/src/libcollections/borrow.rs.html#106-118" title="goto source code">[src]</a></span></h1></section>
 
