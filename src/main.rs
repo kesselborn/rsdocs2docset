@@ -115,31 +115,32 @@ fn find_element_with_class(h: &Handle, c: &str) -> Option<Handle> {
             return Some(e);
         }
     }
-    return None;
+    None
 }
 
-fn extract_entry_name(e: &Entry, class: &str) -> Option<String> {
+fn get_text(h: &Handle) -> Option<String> {
+    let node = h.borrow();
+    for e in node.children.iter() {
+        if let Text(ref t) = e.borrow().node {
+            return Some(t.to_string());
+        }
+    }
+
+    None
+}
+
+fn extract_entry_name(e: &Entry) -> Option<String> {
     match *e {
         Entry::Const(ref c) => {
-            if let Some(e) = find_element_with_class(c, class) {
-                let node = e.borrow();
-                for e in node.children.iter() {
-                    if let Text(ref t) = e.borrow().node {
-                        return Some(t.to_string());
-                    }
-                }
+            if let Some(e) = find_element_with_class(c, "constant") {
+                return get_text(&e);
             }
-        },
-        Entry::Enum(ref c) => {
-            if let Some(e) = find_element_with_class(c, class) {
-                let node = e.borrow();
-                for e in node.children.iter() {
-                    if let Text(ref t) = e.borrow().node {
-                        return Some(t.to_string());
-                    }
-                }
+        }
+        Entry::Enum(ref e) => {
+            if let Some(e) = find_element_with_class(e, "enum") {
+                return get_text(&e);
             }
-        },
+        }
         _ => (),
     }
     None
@@ -181,7 +182,7 @@ mod tests {
             _ => assert!(false),
         }
 
-        match super::extract_entry_name(&entries[0], "constant") {
+        match super::extract_entry_name(&entries[0]) {
             Some(s) => assert_eq!(s, *"HEAP".to_string()),
             None => assert_eq!(true, false),
         }
@@ -201,7 +202,7 @@ mod tests {
             _ => assert!(false),
         }
 
-        match super::extract_entry_name(&entries[0], "enum") {
+        match super::extract_entry_name(&entries[0]) {
             Some(s) => assert_eq!(s, *"Cow".to_string()),
             None => assert_eq!(true, false),
         }
