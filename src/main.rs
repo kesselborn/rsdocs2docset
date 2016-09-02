@@ -158,6 +158,11 @@ fn extract_entry_name(e: &Entry) -> Option<String> {
                 return get_text(&e);
             }
         }
+        Entry::Module(ref e) => {
+            if let Some(e) = find_element_with_class(e, "mod") {
+                return get_text(&e);
+            }
+        }
         _ => (),
     }
     None
@@ -343,9 +348,39 @@ mod tests {
         }
     }
 
+    #[test]
+    fn it_extracts_name_for_module_correctly() {
+        // Module/Crate Collections, entry name: collections
+        let document_with_module_section = dom_from_snippet(r##"
+          <section id="main" class="content mod">
+            <h1 class="fqn">
+              <span class="in-band">Crate <a class="mod" href="#">collections</a></span>
+              <span class="out-of-band">
+                <span class="since" title="Stable since Rust version "></span>
+                <span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span>
+                <a id="src-0" class="srclink" href="../src/collections/up/src/libcollections/lib.rs.html#11-140" title="goto source code">[src]</a>
+              </span>
+            </h1>
+          </section>
+        "##);
+
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&document_with_module_section, &mut entries);
+
+        assert_eq!(entries.len(), 1);
+        match entries[0] {
+            super::Entry::Module(_) => assert!(true),
+            _ => assert!(false),
+        }
+
+        match super::extract_entry_name(&entries[0]) {
+            Some(s) => assert_eq!(s, *"collections".to_string()),
+            None => assert_eq!(true, false),
+        }
+    }
 
 
-// modules: <section id="main" class="content mod"> <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">collections</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version "></span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-0" class="srclink" href="../src/collections/up/src/libcollections/lib.rs.html#11-140" title="goto source code">[src]</a></span></h1></section>
+
 
 // struct: <section id="main" class="content struct"> <h1 class="fqn"><span class="in-band">Struct <a href="../index.html">std</a>::<wbr><a href="index-2.html">io</a>::<wbr><a class="struct" href="#">Bytes</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-5013" class="srclink" href="../../src/std/up/src/libstd/io/mod.rs.html#1532-1534" title="goto source code">[src]</a></span></h1></section>
 
