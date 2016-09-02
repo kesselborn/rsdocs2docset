@@ -132,54 +132,22 @@ fn get_text(h: &Handle) -> Option<String> {
 }
 
 fn extract_entry_name(e: &Entry) -> Option<String> {
-    match *e {
-        Entry::Const(ref c) => {
-            if let Some(e) = find_element_with_class(c, "constant") {
-                return get_text(&e);
-            }
-        }
-        Entry::Enum(ref e) => {
-            if let Some(e) = find_element_with_class(e, "enum") {
-                return get_text(&e);
-            }
-        }
-        Entry::Function(ref e) => {
-            if let Some(e) = find_element_with_class(e, "fn") {
-                return get_text(&e);
-            }
-        }
-        Entry::Method(ref e) => {
-            if let Some(e) = find_element_with_class(e, "fnname") {
-                return get_text(&e);
-            }
-        }
-        Entry::Macro(ref e) => {
-            if let Some(e) = find_element_with_class(e, "macro") {
-                return get_text(&e);
-            }
-        }
-        Entry::Module(ref e) => {
-            if let Some(e) = find_element_with_class(e, "mod") {
-                return get_text(&e);
-            }
-        }
-        Entry::Struct(ref e) => {
-            if let Some(e) = find_element_with_class(e, "struct") {
-                return get_text(&e);
-            }
-        }
-        Entry::Trait(ref e) => {
-            if let Some(e) = find_element_with_class(e, "trait") {
-                return get_text(&e);
-            }
-        }
-        Entry::Type(ref e) => {
-            if let Some(e) = find_element_with_class(e, "type") {
-                return get_text(&e);
-            }
-        }
+    let name_element = match *e {
+        Entry::Const(ref c) => find_element_with_class(c, "constant"),
+        Entry::Enum(ref e) => find_element_with_class(e, "enum"),
+        Entry::Function(ref e) => find_element_with_class(e, "fn"),
+        Entry::Method(ref e) => find_element_with_class(e, "fnname"),
+        Entry::Macro(ref e) => find_element_with_class(e, "macro"),
+        Entry::Module(ref e) => find_element_with_class(e, "mod"),
+        Entry::Struct(ref e) => find_element_with_class(e, "struct"),
+        Entry::Trait(ref e) => find_element_with_class(e, "trait"),
+        Entry::Type(ref e) => find_element_with_class(e, "type"),
+    };
+
+    match name_element {
+        Some(element) => get_text(&element),
+        None => None,
     }
-    None
 }
 
 #[cfg(test)]
@@ -249,7 +217,7 @@ mod tests {
               <span class="out-of-band">
                 <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
                 <span id="render-detail">
-                  <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> 
+                  <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a>
                 </span>
                 <a id="src-2309" class="srclink" href="../../src/collections/up/src/libcollections/borrow.rs.html#106-118" title="goto source code">[src]</a>
               </span>
