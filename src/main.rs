@@ -168,6 +168,11 @@ fn extract_entry_name(e: &Entry) -> Option<String> {
                 return get_text(&e);
             }
         }
+        Entry::Trait(ref e) => {
+            if let Some(e) = find_element_with_class(e, "trait") {
+                return get_text(&e);
+            }
+        }
         _ => (),
     }
     None
@@ -417,9 +422,39 @@ mod tests {
         }
     }
 
+    #[test]
+    fn it_extracts_name_for_trait_correctly() {
+        // Trait collections::fmt::Binary,  entry name: Binary
+        let document_with_trait_section = dom_from_snippet(r##"
+          <section id="main" class="content trait">
+            <h1 class="fqn">
+              <span class="in-band">Trait <a href="../index.html">collections</a>::<wbr><a href="index-2.html">fmt</a>::<wbr><a class="trait" href="#">Binary</a></span>
+              <span class="out-of-band">
+                <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
+                <span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span>
+                <a id="src-38600" class="srclink" href="../../core/fmt/trait.Binary74db.html?gotosrc=38600" title="goto source code">[src]</a>
+              </span>
+            </h1>
+          </section>
+        "##);
+
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&document_with_trait_section, &mut entries);
+
+        assert_eq!(entries.len(), 1);
+        match entries[0] {
+            super::Entry::Trait(_) => assert!(true),
+            _ => assert!(false),
+        }
+
+        match super::extract_entry_name(&entries[0]) {
+            Some(s) => assert_eq!(s, *"Binary".to_string()),
+            None => assert_eq!(true, false),
+        }
+    }
 
 
-// trait: <section id="main" class="content trait"> <h1 class="fqn"><span class="in-band">Trait <a href="../index.html">collections</a>::<wbr><a href="index-2.html">fmt</a>::<wbr><a class="trait" href="#">Binary</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span><a id="src-38600" class="srclink" href="../../core/fmt/trait.Binary74db.html?gotosrc=38600" title="goto source code">[src]</a></span></h1></section>
+
 
 // type: <h4 id="associatedtype.Output" class="type"><code>type <a href="../std/ops/trait.Not.html#associatedtype.Output" class="type">Output</a> = <a class="primitive" href="primitive.bool.html">bool</a></code></h4>
 }
