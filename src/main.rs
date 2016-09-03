@@ -105,17 +105,17 @@ fn walk_tree(h: &Handle, entries: &mut Vec<Entry>) {
     }
 }
 
-fn find_element_with_class(h: &Handle, c: &str) -> Option<Handle> {
+fn find_element_with_class(h: &Handle, class_value: &str) -> Option<Handle> {
     for e in h.borrow().children.iter() {
         if let Element(_, _, ref attrs) = e.borrow().node {
             if attrs.iter()
                     .find(|ref attr| attr.name == qualname!("", "class"))
-                    .and_then(|attr| Some(attr.value.to_string() == c))
+                    .and_then(|attr| Some(attr.value.to_string() == class_value))
                     .unwrap_or(false) {
                 return Some(e.clone());
             }
         }
-        if let Some(e) = find_element_with_class(e, c) {
+        if let Some(e) = find_element_with_class(e, class_value) {
             return Some(e);
         }
     }
