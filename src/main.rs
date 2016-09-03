@@ -84,8 +84,10 @@ fn walk_tree(h: &Handle, entries: &mut Vec<Entry>) {
     for e in node.children.iter() {
         if let Element(ref name, _, ref attrs) = e.borrow().node {
             let tag = &(*name.local.to_ascii_lowercase());
-            if let Some(c) = attrs.iter().find(|ref x| x.name == qualname!("", "class")).and_then(|c| Some(c.clone().value.to_string())) {
-                match (tag, c.as_str()) {
+            if let Some(class_attr) = attrs.iter()
+                                           .find(|ref x| x.name == qualname!("", "class"))
+                                           .and_then(|c| Some(c.clone().value.to_string())) {
+                match (tag, class_attr.as_str()) {
                     ("h4", "method") => entries.push(Entry::Method(e.clone())),
                     ("h4", "type") => entries.push(Entry::Type(e.clone())),
                     ("section", "content constant") => entries.push(Entry::Const(e.clone())),
@@ -107,10 +109,11 @@ fn find_element_with_class(h: &Handle, c: &str) -> Option<Handle> {
     let node = h.borrow();
     for e in node.children.iter() {
         if let Element(_, _, ref attrs) = e.borrow().node {
-            if let Some(attr) = attrs.iter().find(|ref x| x.name == qualname!("", "class")) {
-                if attr.clone().value.to_string() == c {
-                    return Some(e.clone());
-                }
+            if attrs.iter()
+                    .find(|ref attr| attr.name == qualname!("", "class"))
+                    .and_then(|attr| Some(attr.value.to_string() == c))
+                    .unwrap_or(false) {
+                return Some(e.clone());
             }
         }
         if let Some(e) = find_element_with_class(e, c) {
