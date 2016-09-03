@@ -80,8 +80,7 @@ fn find_entry_elements(dom: &mut RcDom) -> Vec<Entry> {
 }
 
 fn walk_tree(h: &Handle, entries: &mut Vec<Entry>) {
-    let node = h.borrow();
-    for e in node.children.iter() {
+    for e in h.borrow().children.iter() {
         if let Element(ref name, _, ref attrs) = e.borrow().node {
             let tag = &(*name.local.to_ascii_lowercase());
             if let Some(class_attr) = attrs.iter()
