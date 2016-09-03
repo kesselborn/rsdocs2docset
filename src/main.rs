@@ -84,8 +84,8 @@ fn walk_tree(h: &Handle, entries: &mut Vec<Entry>) {
     for e in node.children.iter() {
         if let Element(ref name, _, ref attrs) = e.borrow().node {
             let tag = &(*name.local.to_ascii_lowercase());
-            if let Some(attr) = attrs.iter().find(|ref x| x.name == qualname!("", "class")) {
-                match (tag, attr.clone().value.to_string().as_str()) {
+            if let Some(c) = attrs.iter().find(|ref x| x.name == qualname!("", "class")).and_then(|c| Some(c.clone().value.to_string())) {
+                match (tag, c.as_str()) {
                     ("h4", "method") => entries.push(Entry::Method(e.clone())),
                     ("h4", "type") => entries.push(Entry::Type(e.clone())),
                     ("section", "content constant") => entries.push(Entry::Const(e.clone())),
@@ -130,6 +130,7 @@ fn get_text(h: &Handle) -> Option<String> {
 
     None
 }
+
 
 fn extract_entry_name(e: &Entry) -> Option<String> {
     let name_element = match *e {
