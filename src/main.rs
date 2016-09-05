@@ -177,23 +177,7 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_const_correctly() {
-        // alloc::boxed::HEAP constant, entry name: HEAP
-        let document_with_constant_section = dom_from_snippet(r##"
-          <section id="main" class="content constant">
-            <h1 class="fqn">
-              <span class="in-band">
-                <a href="../index.html">alloc</a>::<wbr><a href="index.html">boxed</a>::<wbr><a class="constant" href="#">HEAP</a>
-              </span>
-              <span class="out-of-band">
-                <span class="since" title="Stable since Rust version "></span>
-                <span id="render-detail">
-                  <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a>
-                </span>
-                <a id="src-86" class="srclink" href="../../src/alloc/up/src/liballoc/boxed.rs.html#91" title="goto source code">[src]</a>
-              </span>
-            </h1>
-          </section>
-        "##);
+        let document_with_constant_section = dom_from_snippet(CONST_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
         super::walk_tree(&document_with_constant_section, &mut entries);
@@ -212,21 +196,7 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_enum_correctly() {
-        // collections::borrow::Cow, entry name: Cow
-        let document_with_enum_section = dom_from_snippet(r##"
-          <section id="main" class="content enum">
-            <h1 class="fqn">
-              <span class="in-band">Enum <a href="../index.html">collections</a>::<wbr><a href="index-2.html">borrow</a>::<wbr><a class="enum" href="#">Cow</a></span>
-              <span class="out-of-band">
-                <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
-                <span id="render-detail">
-                  <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a>
-                </span>
-                <a id="src-2309" class="srclink" href="../../src/collections/up/src/libcollections/borrow.rs.html#106-118" title="goto source code">[src]</a>
-              </span>
-            </h1>
-          </section>
-        "##);
+        let document_with_enum_section = dom_from_snippet(ENUM_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
         super::walk_tree(&document_with_enum_section, &mut entries);
@@ -245,21 +215,7 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_function_correctly() {
-        // Function std::fs::metadata, entry name: metadata
-        let document_with_function_section = dom_from_snippet(r##"
-          <section id="main" class="content fn">
-            <h1 class="fqn">
-              <span class="in-band">Function <a href="../index.html">std</a>::<wbr><a href="index-2.html">fs</a>::<wbr><a class="fn" href="#">metadata</a></span>
-              <span class="out-of-band">
-                <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
-                <span id="render-detail">
-                  <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a>
-                </span>
-                <a id="src-3833" class="srclink" href="../../src/std/up/src/libstd/fs.rs.html#933-935" title="goto source code">[src]</a>
-              </span>
-            </h1>
-          </section>
-        "##);
+        let document_with_function_section = dom_from_snippet(FUNCTION_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
         super::walk_tree(&document_with_function_section, &mut entries);
@@ -279,19 +235,7 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_macro_correctly() {
-        // Macro std::println!, entry name: println!
-        let document_with_macro_section = dom_from_snippet(r##"
-          <section id="main" class="content macro">
-            <h1 class="fqn">
-              <span class="in-band"><a href="index-2.html">std</a>::<wbr><a class="macro" href="#">println!</a></span>
-              <span class="out-of-band">
-                <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
-                <span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span>
-                <a id="src-15389" class="srclink" href="../src/std/up/src/libstd/macros.rs.html#118-121" title="goto source code">[src]</a>
-              </span>
-            </h1>
-          </section>
-        "##);
+        let document_with_macro_section = dom_from_snippet(MACRO_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
         super::walk_tree(&document_with_macro_section, &mut entries);
@@ -310,13 +254,7 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_method_correctly() {
-        // Method Hash::hash, entry name: hash
-        let document_with_method_section = dom_from_snippet(r##"
-          <h4 id="method.hash" class="method">
-            <code>fn <a href="../../core/hash/trait.Hash.html#tymethod.hash" class="fnname">hash</a>&lt;H:&nbsp;<a class="trait" href="../../core/hash/trait.Hasher.html" title="core::hash::Hasher">Hasher</a>&gt;(&amp;self, state: &amp;mut H)</code>
-            <a href="javascript:void(0)" class="collapse-toggle">[<span class="inner">−</span>]</a>
-          </h4>
-        "##);
+        let document_with_method_section = dom_from_snippet(METHOD_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
         super::walk_tree(&document_with_method_section, &mut entries);
@@ -335,19 +273,7 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_module_correctly() {
-        // Module/Crate Collections, entry name: collections
-        let document_with_module_section = dom_from_snippet(r##"
-          <section id="main" class="content mod">
-            <h1 class="fqn">
-              <span class="in-band">Crate <a class="mod" href="#">collections</a></span>
-              <span class="out-of-band">
-                <span class="since" title="Stable since Rust version "></span>
-                <span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span>
-                <a id="src-0" class="srclink" href="../src/collections/up/src/libcollections/lib.rs.html#11-140" title="goto source code">[src]</a>
-              </span>
-            </h1>
-          </section>
-        "##);
+        let document_with_module_section = dom_from_snippet(MODULE_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
         super::walk_tree(&document_with_module_section, &mut entries);
@@ -366,21 +292,7 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_struct_correctly() {
-        // Struct collections::str::Bytes,  entry name: Bytes
-        let document_with_struct_section = dom_from_snippet(r##"
-          <section id="main" class="content struct">
-            <h1 class="fqn">
-              <span class="in-band">Struct <a href="../index.html">std</a>::<wbr><a href="index-2.html">io</a>::<wbr><a class="struct" href="#">Bytes</a></span>
-              <span class="out-of-band">
-                <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
-                <span id="render-detail">
-                  <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a>
-                </span>
-                <a id="src-5013" class="srclink" href="../../src/std/up/src/libstd/io/mod.rs.html#1532-1534" title="goto source code">[src]</a>
-              </span>
-            </h1>
-          </section>
-        "##);
+        let document_with_struct_section = dom_from_snippet(STRUCT_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
         super::walk_tree(&document_with_struct_section, &mut entries);
@@ -399,19 +311,7 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_trait_correctly() {
-        // Trait collections::fmt::Binary,  entry name: Binary
-        let document_with_trait_section = dom_from_snippet(r##"
-          <section id="main" class="content trait">
-            <h1 class="fqn">
-              <span class="in-band">Trait <a href="../index.html">collections</a>::<wbr><a href="index-2.html">fmt</a>::<wbr><a class="trait" href="#">Binary</a></span>
-              <span class="out-of-band">
-                <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
-                <span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span>
-                <a id="src-38600" class="srclink" href="../../core/fmt/trait.Binary74db.html?gotosrc=38600" title="goto source code">[src]</a>
-              </span>
-            </h1>
-          </section>
-        "##);
+        let document_with_trait_section = dom_from_snippet(TRAIT_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
         super::walk_tree(&document_with_trait_section, &mut entries);
@@ -430,12 +330,7 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_type_correctly() {
-        // Type Trait collections::fmt::Binary / Output, entry name: Output
-        let document_with_type_section = dom_from_snippet(r##"
-          <h4 id="associatedtype.Output" class="type">
-            <code>type <a href="../std/ops/trait.Not.html#associatedtype.Output" class="type">Output</a> = <a class="primitive" href="primitive.bool.html">bool</a></code>
-          </h4>
-        "##);
+        let document_with_type_section = dom_from_snippet(TYPE_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
         super::walk_tree(&document_with_type_section, &mut entries);
@@ -451,4 +346,128 @@ mod tests {
             None => assert_eq!(true, false),
         }
     }
+
+    /// /////////////////////// fixtures
+    /// alloc::boxed::HEAP constant, entry name: HEAP
+    static CONST_SNIPPET: &str = r##"
+      <section id="main" class="content constant">
+        <h1 class="fqn">
+          <span class="in-band">
+            <a href="../index.html">alloc</a>::<wbr><a href="index.html">boxed</a>::<wbr><a class="constant" href="#">HEAP</a>
+          </span>
+          <span class="out-of-band">
+            <span class="since" title="Stable since Rust version "></span>
+            <span id="render-detail">
+              <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a>
+            </span>
+            <a id="src-86" class="srclink" href="../../src/alloc/up/src/liballoc/boxed.rs.html#91" title="goto source code">[src]</a>
+          </span>
+        </h1>
+      </section>
+    "##;
+
+    // collections::borrow::Cow, entry name: Cow
+    static ENUM_SNIPPET: &str = r##"
+      <section id="main" class="content enum">
+        <h1 class="fqn">
+          <span class="in-band">Enum <a href="../index.html">collections</a>::<wbr><a href="index-2.html">borrow</a>::<wbr><a class="enum" href="#">Cow</a></span>
+          <span class="out-of-band">
+            <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
+            <span id="render-detail">
+              <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a>
+            </span>
+            <a id="src-2309" class="srclink" href="../../src/collections/up/src/libcollections/borrow.rs.html#106-118" title="goto source code">[src]</a>
+          </span>
+        </h1>
+      </section>
+    "##;
+
+    // Function std::fs::metadata, entry name: metadata
+    static FUNCTION_SNIPPET: &str = r##"
+      <section id="main" class="content fn">
+        <h1 class="fqn">
+          <span class="in-band">Function <a href="../index.html">std</a>::<wbr><a href="index-2.html">fs</a>::<wbr><a class="fn" href="#">metadata</a></span>
+          <span class="out-of-band">
+            <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
+            <span id="render-detail">
+              <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a>
+            </span>
+            <a id="src-3833" class="srclink" href="../../src/std/up/src/libstd/fs.rs.html#933-935" title="goto source code">[src]</a>
+          </span>
+        </h1>
+      </section>
+    "##;
+
+    // Macro std::println!, entry name: println!
+    static MACRO_SNIPPET: &str = r##"
+      <section id="main" class="content macro">
+        <h1 class="fqn">
+          <span class="in-band"><a href="index-2.html">std</a>::<wbr><a class="macro" href="#">println!</a></span>
+          <span class="out-of-band">
+            <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
+            <span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span>
+            <a id="src-15389" class="srclink" href="../src/std/up/src/libstd/macros.rs.html#118-121" title="goto source code">[src]</a>
+          </span>
+        </h1>
+      </section>
+    "##;
+
+    // Method Hash::hash, entry name: hash
+    static METHOD_SNIPPET: &str = r##"
+      <h4 id="method.hash" class="method">
+        <code>fn <a href="../../core/hash/trait.Hash.html#tymethod.hash" class="fnname">hash</a>&lt;H:&nbsp;<a class="trait" href="../../core/hash/trait.Hasher.html" title="core::hash::Hasher">Hasher</a>&gt;(&amp;self, state: &amp;mut H)</code>
+        <a href="javascript:void(0)" class="collapse-toggle">[<span class="inner">−</span>]</a>
+      </h4>
+    "##;
+
+    // Module/Crate Collections, entry name: collections
+    static MODULE_SNIPPET: &str = r##"
+      <section id="main" class="content mod">
+        <h1 class="fqn">
+          <span class="in-band">Crate <a class="mod" href="#">collections</a></span>
+          <span class="out-of-band">
+            <span class="since" title="Stable since Rust version "></span>
+            <span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span>
+            <a id="src-0" class="srclink" href="../src/collections/up/src/libcollections/lib.rs.html#11-140" title="goto source code">[src]</a>
+          </span>
+        </h1>
+      </section>
+    "##;
+
+    // Struct collections::str::Bytes,  entry name: Bytes
+    static STRUCT_SNIPPET: &str = r##"
+      <section id="main" class="content struct">
+        <h1 class="fqn">
+          <span class="in-band">Struct <a href="../index.html">std</a>::<wbr><a href="index-2.html">io</a>::<wbr><a class="struct" href="#">Bytes</a></span>
+          <span class="out-of-band">
+            <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
+            <span id="render-detail">
+              <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a>
+            </span>
+            <a id="src-5013" class="srclink" href="../../src/std/up/src/libstd/io/mod.rs.html#1532-1534" title="goto source code">[src]</a>
+          </span>
+        </h1>
+      </section>
+    "##;
+
+    // Trait collections::fmt::Binary,  entry name: Binary
+    static TRAIT_SNIPPET: &str = r##"
+      <section id="main" class="content trait">
+        <h1 class="fqn">
+          <span class="in-band">Trait <a href="../index.html">collections</a>::<wbr><a href="index-2.html">fmt</a>::<wbr><a class="trait" href="#">Binary</a></span>
+          <span class="out-of-band">
+            <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
+            <span id="render-detail"> <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs"> [<span class="inner">−</span>] </a> </span>
+            <a id="src-38600" class="srclink" href="../../core/fmt/trait.Binary74db.html?gotosrc=38600" title="goto source code">[src]</a>
+          </span>
+        </h1>
+      </section>
+    "##;
+
+    // Type Trait collections::fmt::Binary / Output, entry name: Output
+    static TYPE_SNIPPET: &str = r##"
+      <h4 id="associatedtype.Output" class="type">
+        <code>type <a href="../std/ops/trait.Not.html#associatedtype.Output" class="type">Output</a> = <a class="primitive" href="primitive.bool.html">bool</a></code>
+      </h4>
+    "##;
 }
