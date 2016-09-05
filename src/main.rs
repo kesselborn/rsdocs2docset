@@ -49,55 +49,43 @@ fn main() {
 }
 
 fn add_dash_links(mut dom: &mut RcDom, entries: &Vec<Entry>) {
-    // https://kapeli.com/docsets#tableofcontents
-    // https://kapeli.com/docsets#supportedentrytypes
-    for entry in entries {
-        match *entry {
-            Entry::Const(ref e) => {
-                add_dash_link_before_entry(&mut dom, &e, "constant", "42")
-            }
-            Entry::Enum(ref e) => {
-                add_dash_link_before_entry(&mut dom, &e, "enum", "42")
-            }
-            Entry::Function(ref e) => {
-                add_dash_link_before_entry(&mut dom, &e, "function", "42")
-            }
-            Entry::Macro(ref e) => {
-                add_dash_link_before_entry(&mut dom, &e, "macro", "42")
-            }
-            Entry::Method(ref e) => {
-                add_dash_link_before_entry(&mut dom, &e, "method", "42")
-            }
-            Entry::Module(ref e) => {
-                add_dash_link_before_entry(&mut dom, &e, "module", "42")
-            }
-            Entry::Struct(ref e) => {
-                add_dash_link_before_entry(&mut dom, &e, "struct", "42")
-            }
-            Entry::Trait(ref e) => {
-                add_dash_link_before_entry(&mut dom, &e, "trait", "42")
-            }
-            Entry::Type(ref e) => {
-                add_dash_link_before_entry(&mut dom, &e, "type", "42")
-            }
-        }
-    }
-}
-
-fn add_dash_link_before_entry(dom: &mut RcDom, p: &Handle, entrytype: &str, entryname: &str) {
     let class_attr = html5ever::Attribute {
         name: qualname!("", "class"),
         value: format_tendril!("dashAnchor"),
     };
 
-    let name_attr = html5ever::Attribute {
-        name: qualname!("", "name"),
-        // TODO: percent escape entryname
-        value: format_tendril!("//apple_ref/cpp/{}/{}", entrytype, entryname),
-    };
+    let mut i = 0;
 
-    let dash_link = dom.create_element(qualname!(html, "a"), vec![name_attr, class_attr.clone()]);
-    let _ = dom.append_before_sibling(p.clone(), NodeOrText::AppendNode(dash_link));
+    // https://kapeli.com/docsets#tableofcontents
+    // https://kapeli.com/docsets#supportedentrytypes
+    for entry in entries {
+        if let Some(entryname) = extract_entry_name(&entry) {
+            let (handle, entrytype) = match *entry {
+                Entry::Const(ref c) => (c, "const"),
+                Entry::Enum(ref e) => (e, "enum"),
+                Entry::Function(ref f) => (f, "function"),
+                Entry::Macro(ref m) => (m, "macro"),
+                Entry::Method(ref m) => (m, "method"),
+                Entry::Module(ref m) => (m, "module"),
+                Entry::Struct(ref s) => (s, "struct"),
+                Entry::Trait(ref t) => (t, "trait"),
+                Entry::Type(ref t) => (t, "type"),
+            };
+            let name_attr = html5ever::Attribute {
+                name: qualname!("", "name"),
+                // TODO: percent escape entryname
+                // //dash_ref_SOMEID/TYPE/NAME/IS_SECTION
+                value: format_tendril!("//dash_ref_{}/{}/{}/{}", i, entrytype, entryname, "0"),
+            };
+            let dash_link = dom.create_element(qualname!(html, "a"),
+                                               vec![name_attr, class_attr.clone()]);
+            let _ = dom.append_before_sibling(handle.clone() as Handle,
+                                              NodeOrText::AppendNode(dash_link));
+
+            i = i + 1;
+        }
+    }
+
 }
 
 fn find_entry_elements(dom: &mut RcDom) -> Vec<Entry> {
