@@ -53,10 +53,33 @@ fn add_dash_links(mut dom: &mut RcDom, entries: &Vec<Entry>) {
     // https://kapeli.com/docsets#supportedentrytypes
     for entry in entries {
         match *entry {
+            Entry::Const(ref e) => {
+                add_dash_link_before_entry(&mut dom, &e, "constant", "42")
+            }
+            Entry::Enum(ref e) => {
+                add_dash_link_before_entry(&mut dom, &e, "enum", "42")
+            }
+            Entry::Function(ref e) => {
+                add_dash_link_before_entry(&mut dom, &e, "function", "42")
+            }
+            Entry::Macro(ref e) => {
+                add_dash_link_before_entry(&mut dom, &e, "macro", "42")
+            }
             Entry::Method(ref e) => {
                 add_dash_link_before_entry(&mut dom, &e, "method", "42")
             }
-            _ => {}
+            Entry::Module(ref e) => {
+                add_dash_link_before_entry(&mut dom, &e, "module", "42")
+            }
+            Entry::Struct(ref e) => {
+                add_dash_link_before_entry(&mut dom, &e, "struct", "42")
+            }
+            Entry::Trait(ref e) => {
+                add_dash_link_before_entry(&mut dom, &e, "trait", "42")
+            }
+            Entry::Type(ref e) => {
+                add_dash_link_before_entry(&mut dom, &e, "type", "42")
+            }
         }
     }
 }
@@ -159,10 +182,12 @@ fn extract_entry_name(e: &Entry) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use html5ever::{ParseOpts, parse_document};
+    use html5ever::rcdom::NodeEnum::Element;
+    use html5ever::serialize::{SerializeOpts, serialize};
     use html5ever::rcdom::RcDom;
-    use tendril::TendrilSink;
     use html5ever::tree_builder::TreeBuilderOpts;
+    use html5ever::{ParseOpts, parse_document};
+    use tendril::TendrilSink;
 
     fn dom_from_snippet(s: &str) -> RcDom {
         let opts = ParseOpts {
@@ -179,12 +204,48 @@ mod tests {
         dom
     }
 
+
+    // our snippets contain the entry elements as first elements in the body, i.e. after dash
+    // anchors are inserted, the first body-element should be a dash anchor
+    // This code is pretty ugly ... but works for now
+    fn first_element_is_dash_anchor(dom: &RcDom) -> bool {
+        let ref html_element = dom.document.borrow().children[0];
+        for e in html_element.borrow().children.iter() {
+            if let Element(ref name, _, _) = e.borrow().node {
+                if &(*name.local.to_ascii_lowercase()) == "body" {
+                    for body_child in e.borrow().children.iter() {
+                        if let Element(_, _, ref attrs) = body_child.borrow().node {
+                            if let Some(class_attr) = attrs.iter()
+                                                           .find(|ref x| {
+                                                               x.name == qualname!("", "class")
+                                                           })
+                                                           .and_then(|c| {
+                                                               Some(c.clone().value.to_string())
+                                                           }) {
+                                if class_attr == "dashAnchor" {
+                                    return true;
+                                }
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        let mut bytes = vec![];
+        serialize(&mut bytes, &dom.document, SerializeOpts::default()).unwrap();
+        let result = String::from_utf8(bytes).unwrap();
+        println!("document is missing dash anchor:\n{}", result);
+
+        false
+    }
+
     #[test]
     fn it_extracts_name_for_const_correctly() {
-        let dom_with_constant_section = dom_from_snippet(CONST_SNIPPET);
+        let dom = dom_from_snippet(CONST_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&dom_with_constant_section.document, &mut entries);
+        super::walk_tree(&dom.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -199,19 +260,21 @@ mod tests {
     }
 
     #[test]
-    fn it_inserts_dash_anchor_befor_const_entry() {
-        let dom_with_constant_section = dom_from_snippet(CONST_SNIPPET);
+    fn it_inserts_dash_anchor_before_const_entry() {
+        let mut dom = dom_from_snippet(CONST_SNIPPET);
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&dom_with_constant_section.document, &mut entries);
+        super::walk_tree(&dom.document, &mut entries);
+        super::add_dash_links(&mut dom, &entries);
 
+        assert!(first_element_is_dash_anchor(&dom));
     }
 
     #[test]
     fn it_extracts_name_for_enum_correctly() {
-        let dom_with_enum_section = dom_from_snippet(ENUM_SNIPPET);
+        let dom = dom_from_snippet(ENUM_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&dom_with_enum_section.document, &mut entries);
+        super::walk_tree(&dom.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -226,11 +289,21 @@ mod tests {
     }
 
     #[test]
+    fn it_inserts_dash_anchor_before_enum_entry() {
+        let mut dom = dom_from_snippet(ENUM_SNIPPET);
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&dom.document, &mut entries);
+        super::add_dash_links(&mut dom, &entries);
+
+        assert!(first_element_is_dash_anchor(&dom));
+    }
+
+    #[test]
     fn it_extracts_name_for_function_correctly() {
-        let dom_with_function_section = dom_from_snippet(FUNCTION_SNIPPET);
+        let dom = dom_from_snippet(FUNCTION_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&dom_with_function_section.document, &mut entries);
+        super::walk_tree(&dom.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -244,13 +317,22 @@ mod tests {
         }
     }
 
+    #[test]
+    fn it_inserts_dash_anchor_before_function_entry() {
+        let mut dom = dom_from_snippet(FUNCTION_SNIPPET);
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&dom.document, &mut entries);
+        super::add_dash_links(&mut dom, &entries);
+
+        assert!(first_element_is_dash_anchor(&dom));
+    }
 
     #[test]
     fn it_extracts_name_for_macro_correctly() {
-        let dom_with_macro_section = dom_from_snippet(MACRO_SNIPPET);
+        let dom = dom_from_snippet(MACRO_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&dom_with_macro_section.document, &mut entries);
+        super::walk_tree(&dom.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -265,11 +347,21 @@ mod tests {
     }
 
     #[test]
+    fn it_inserts_dash_anchor_before_macro_entry() {
+        let mut dom = dom_from_snippet(MACRO_SNIPPET);
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&dom.document, &mut entries);
+        super::add_dash_links(&mut dom, &entries);
+
+        assert!(first_element_is_dash_anchor(&dom));
+    }
+
+    #[test]
     fn it_extracts_name_for_method_correctly() {
-        let dom_with_method_section = dom_from_snippet(METHOD_SNIPPET);
+        let dom = dom_from_snippet(METHOD_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&dom_with_method_section.document, &mut entries);
+        super::walk_tree(&dom.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -284,11 +376,21 @@ mod tests {
     }
 
     #[test]
+    fn it_inserts_dash_anchor_before_method_entry() {
+        let mut dom = dom_from_snippet(METHOD_SNIPPET);
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&dom.document, &mut entries);
+        super::add_dash_links(&mut dom, &entries);
+
+        assert!(first_element_is_dash_anchor(&dom));
+    }
+
+    #[test]
     fn it_extracts_name_for_module_correctly() {
-        let dom_with_module_section = dom_from_snippet(MODULE_SNIPPET);
+        let dom = dom_from_snippet(MODULE_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&dom_with_module_section.document, &mut entries);
+        super::walk_tree(&dom.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -303,11 +405,21 @@ mod tests {
     }
 
     #[test]
+    fn it_inserts_dash_anchor_before_module_entry() {
+        let mut dom = dom_from_snippet(MODULE_SNIPPET);
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&dom.document, &mut entries);
+        super::add_dash_links(&mut dom, &entries);
+
+        assert!(first_element_is_dash_anchor(&dom));
+    }
+
+    #[test]
     fn it_extracts_name_for_struct_correctly() {
-        let dom_with_struct_section = dom_from_snippet(STRUCT_SNIPPET);
+        let dom = dom_from_snippet(STRUCT_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&dom_with_struct_section.document, &mut entries);
+        super::walk_tree(&dom.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -322,11 +434,21 @@ mod tests {
     }
 
     #[test]
+    fn it_inserts_dash_anchor_before_struct_entry() {
+        let mut dom = dom_from_snippet(STRUCT_SNIPPET);
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&dom.document, &mut entries);
+        super::add_dash_links(&mut dom, &entries);
+
+        assert!(first_element_is_dash_anchor(&dom));
+    }
+
+    #[test]
     fn it_extracts_name_for_trait_correctly() {
-        let dom_with_trait_section = dom_from_snippet(TRAIT_SNIPPET);
+        let dom = dom_from_snippet(TRAIT_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&dom_with_trait_section.document, &mut entries);
+        super::walk_tree(&dom.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -341,11 +463,21 @@ mod tests {
     }
 
     #[test]
+    fn it_inserts_dash_anchor_before_trait_entry() {
+        let mut dom = dom_from_snippet(TRAIT_SNIPPET);
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&dom.document, &mut entries);
+        super::add_dash_links(&mut dom, &entries);
+
+        assert!(first_element_is_dash_anchor(&dom));
+    }
+
+    #[test]
     fn it_extracts_name_for_type_correctly() {
-        let dom_with_type_section = dom_from_snippet(TYPE_SNIPPET);
+        let dom = dom_from_snippet(TYPE_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&dom_with_type_section.document, &mut entries);
+        super::walk_tree(&dom.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -357,6 +489,16 @@ mod tests {
             Some(s) => assert_eq!(s, *"Output".to_string()),
             None => assert_eq!(true, false),
         }
+    }
+
+    #[test]
+    fn it_inserts_dash_anchor_before_type_entry() {
+        let mut dom = dom_from_snippet(TYPE_SNIPPET);
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&dom.document, &mut entries);
+        super::add_dash_links(&mut dom, &entries);
+
+        assert!(first_element_is_dash_anchor(&dom));
     }
 
     /// /////////////////////// fixtures
