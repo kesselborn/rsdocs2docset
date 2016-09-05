@@ -40,21 +40,25 @@ fn main() {
 
     let entries = find_entry_elements(&mut dom);
 
-    // https://kapeli.com/docsets#tableofcontents
-    // https://kapeli.com/docsets#supportedentrytypes
-    for entry in entries {
-        match entry {
-            Entry::Method(e) => {
-                add_dash_link_before_entry(&mut dom, &e, "method", "42")
-            }
-            _ => {}
-        }
-    }
+    add_dash_links(&mut dom, &entries);
 
     let mut bytes = vec![];
     serialize(&mut bytes, &dom.document, SerializeOpts::default()).unwrap();
     let result = String::from_utf8(bytes).unwrap();
     println!("{}", result);
+}
+
+fn add_dash_links(mut dom: &mut RcDom, entries: &Vec<Entry>) {
+    // https://kapeli.com/docsets#tableofcontents
+    // https://kapeli.com/docsets#supportedentrytypes
+    for entry in entries {
+        match *entry {
+            Entry::Method(ref e) => {
+                add_dash_link_before_entry(&mut dom, &e, "method", "42")
+            }
+            _ => {}
+        }
+    }
 }
 
 fn add_dash_link_before_entry(dom: &mut RcDom, p: &Handle, entrytype: &str, entryname: &str) {
@@ -156,11 +160,11 @@ fn extract_entry_name(e: &Entry) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use html5ever::{ParseOpts, parse_document};
-    use html5ever::rcdom::{Handle, RcDom};
+    use html5ever::rcdom::RcDom;
     use tendril::TendrilSink;
     use html5ever::tree_builder::TreeBuilderOpts;
 
-    fn dom_from_snippet(s: &str) -> Handle {
+    fn dom_from_snippet(s: &str) -> RcDom {
         let opts = ParseOpts {
             tree_builder: TreeBuilderOpts { drop_doctype: true, ..Default::default() },
             ..Default::default()
@@ -172,15 +176,15 @@ mod tests {
                                           .as_bytes())
                       .unwrap();
 
-        dom.document
+        dom
     }
 
     #[test]
     fn it_extracts_name_for_const_correctly() {
-        let document_with_constant_section = dom_from_snippet(CONST_SNIPPET);
+        let dom_with_constant_section = dom_from_snippet(CONST_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&document_with_constant_section, &mut entries);
+        super::walk_tree(&dom_with_constant_section.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -195,11 +199,19 @@ mod tests {
     }
 
     #[test]
+    fn it_inserts_dash_anchor_befor_const_entry() {
+        let dom_with_constant_section = dom_from_snippet(CONST_SNIPPET);
+        let mut entries: Vec<super::Entry> = Vec::new();
+        super::walk_tree(&dom_with_constant_section.document, &mut entries);
+
+    }
+
+    #[test]
     fn it_extracts_name_for_enum_correctly() {
-        let document_with_enum_section = dom_from_snippet(ENUM_SNIPPET);
+        let dom_with_enum_section = dom_from_snippet(ENUM_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&document_with_enum_section, &mut entries);
+        super::walk_tree(&dom_with_enum_section.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -215,10 +227,10 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_function_correctly() {
-        let document_with_function_section = dom_from_snippet(FUNCTION_SNIPPET);
+        let dom_with_function_section = dom_from_snippet(FUNCTION_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&document_with_function_section, &mut entries);
+        super::walk_tree(&dom_with_function_section.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -235,10 +247,10 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_macro_correctly() {
-        let document_with_macro_section = dom_from_snippet(MACRO_SNIPPET);
+        let dom_with_macro_section = dom_from_snippet(MACRO_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&document_with_macro_section, &mut entries);
+        super::walk_tree(&dom_with_macro_section.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -254,10 +266,10 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_method_correctly() {
-        let document_with_method_section = dom_from_snippet(METHOD_SNIPPET);
+        let dom_with_method_section = dom_from_snippet(METHOD_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&document_with_method_section, &mut entries);
+        super::walk_tree(&dom_with_method_section.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -273,10 +285,10 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_module_correctly() {
-        let document_with_module_section = dom_from_snippet(MODULE_SNIPPET);
+        let dom_with_module_section = dom_from_snippet(MODULE_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&document_with_module_section, &mut entries);
+        super::walk_tree(&dom_with_module_section.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -292,10 +304,10 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_struct_correctly() {
-        let document_with_struct_section = dom_from_snippet(STRUCT_SNIPPET);
+        let dom_with_struct_section = dom_from_snippet(STRUCT_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&document_with_struct_section, &mut entries);
+        super::walk_tree(&dom_with_struct_section.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -311,10 +323,10 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_trait_correctly() {
-        let document_with_trait_section = dom_from_snippet(TRAIT_SNIPPET);
+        let dom_with_trait_section = dom_from_snippet(TRAIT_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&document_with_trait_section, &mut entries);
+        super::walk_tree(&dom_with_trait_section.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
@@ -330,10 +342,10 @@ mod tests {
 
     #[test]
     fn it_extracts_name_for_type_correctly() {
-        let document_with_type_section = dom_from_snippet(TYPE_SNIPPET);
+        let dom_with_type_section = dom_from_snippet(TYPE_SNIPPET);
 
         let mut entries: Vec<super::Entry> = Vec::new();
-        super::walk_tree(&document_with_type_section, &mut entries);
+        super::walk_tree(&dom_with_type_section.document, &mut entries);
 
         assert_eq!(entries.len(), 1);
         match entries[0] {
