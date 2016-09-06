@@ -5,6 +5,6 @@ authors = ["Daniel Bornkessel"]
 
 [dependencies]
 html5ever = "*"
-string_cache = "0.2.23"
-sqlite = "0.23.0"
-tendril = "0.2.2"
+string_cache = "*"
+sqlite = "*"
+tendril = "*"

@@ -1,0 +1,4 @@
+reorder_imports = true
+single_line_if_else = true
+format_strings = false
+fn_args_density = "Compressed"
