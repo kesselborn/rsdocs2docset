@@ -1,5 +1,5 @@
 [package]
-name = "dash_rust"
+name = "docsrs2docset"
 version = "0.1.0"
 authors = ["Daniel Bornkessel"]
 
