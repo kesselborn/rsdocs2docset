@@ -4,4 +4,4 @@ extern crate string_cache;
 #[macro_use(format_tendril)]
 extern crate tendril;
 
-pub mod dom_manipulator;
+pub mod dom;
