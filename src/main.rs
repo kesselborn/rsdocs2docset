@@ -10,6 +10,7 @@ use html5ever::tendril::TendrilSink;
 use std::io;
 use std::string::String;
 
+use docsrs2docset::dom_manipulator;
 
 fn main() {
     let opts = ParseOpts {
@@ -23,9 +24,9 @@ fn main() {
                       .read_from(&mut stdin.lock())
                       .unwrap();
 
-    let entries = docsrs2docset::find_entry_elements(&mut dom);
+    let entries = dom_manipulator::find_entry_elements(&mut dom);
 
-    docsrs2docset::add_dash_links(&mut dom, &entries);
+    dom_manipulator::add_dash_links(&mut dom, &entries);
 
     let mut bytes = vec![];
     serialize(&mut bytes, &dom.document, SerializeOpts::default()).unwrap();
