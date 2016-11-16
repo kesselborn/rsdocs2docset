@@ -1,0 +1,58 @@
+---
+resource_types:
+- name: cache
+  type: docker-image
+  source:
+    repository: kesselborn/concourse-ci-cache-resource
+
+resources:
+  - name: src
+    type: git
+    source:
+      uri: https://git.bornkessel.com/kesselborn/docsrs2docset.git
+
+  - name: cache
+    type: cache
+    source:
+      cache-url: "http://ci-worker0.bornkessel.com:8080/docsrs2docset"
+
+jobs:
+- name: test
+  plan:
+  - aggregate:
+    - get: src
+      trigger: true
+    - get: cache
+      params:
+        debug: false
+  - task: run-tests
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: scorpil/rust, tag: nightly}
+      inputs:
+      - name: src
+      - name: cache
+      outputs:
+      - name: cache-outgoing
+      run:
+        path: sh
+        args:
+        - -xc
+        - |
+          mv cache/target src/
+          mv cache/.cargo cache-outgoing/.cargo
+          export HOME=${PWD}/cache-outgoing
+
+          cd src
+          cargo test
+          result=$?
+
+          mv target ../cache-outgoing
+          exit ${result}
+
+  - put: cache
+    params:
+      debug: false
+
