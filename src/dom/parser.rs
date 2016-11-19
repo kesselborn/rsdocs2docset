@@ -63,9 +63,10 @@ fn get_text(h: &Handle) -> Option<String> {
     None
 }
 
+// ## and_then oder so verwenden
 pub fn extract_entry_name(e: &Entry) -> Option<String> {
     let name_element = match *e {
-        Entry::Const(ref c) => find_element_with_class(c, "constant"),
+        Entry::Const(ref e) => find_element_with_class(e, "constant"),
         Entry::Enum(ref e) => find_element_with_class(e, "enum"),
         Entry::Function(ref e) => find_element_with_class(e, "fn"),
         Entry::Method(ref e) => find_element_with_class(e, "fnname"),

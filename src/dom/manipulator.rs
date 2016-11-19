@@ -10,11 +10,9 @@ pub fn add_dash_links(mut dom: &mut RcDom, entries: &Vec<Entry>) {
         value: format_tendril!("dashAnchor"),
     };
 
-    let mut i = 0;
-
     // https://kapeli.com/docsets#tableofcontents
     // https://kapeli.com/docsets#supportedentrytypes
-    for entry in entries {
+    for (i, entry) in entries.iter().enumerate() {
         if let Some(entryname) = parser::extract_entry_name(&entry) {
             let (handle, entrytype) = match *entry {
                 Entry::Const(ref c) => (c, "const"),
@@ -38,7 +36,6 @@ pub fn add_dash_links(mut dom: &mut RcDom, entries: &Vec<Entry>) {
             let _ = dom.append_before_sibling(handle.clone() as Handle,
                                               NodeOrText::AppendNode(dash_link));
 
-            i = i + 1;
         }
     }
 
