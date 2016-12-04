@@ -3,8 +3,15 @@ name = "docsrs2docset"
 version = "0.1.0"
 authors = ["Daniel Bornkessel"]
 
+[[bin]]
+name = "main"
+doc = false
+
 [dependencies]
 html5ever = "*"
 string_cache = "*"
 sqlite = "*"
 tendril = "*"
+clap = "*"
+quick-error = "*"
+regex = "*"
