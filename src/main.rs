@@ -12,9 +12,10 @@ use html5ever::tendril::TendrilSink;
 use html5ever::tree_builder::TreeBuilderOpts;
 
 use std::fs::{self, DirBuilder, DirEntry, File};
-use std::io::Write;
+use std::io::{self,Write};
 use std::path::Path;
 use std::string::String;
+
 
 use rsdocs2docset::dom::{manipulator, parser};
 
@@ -70,6 +71,10 @@ fn main() {
 fn docset_tree_from_rs_doc_tree(source_dir: &Path, out_dir: &str,
                                 cb: &Fn(&DirEntry, &str) -> Result<()>)
                                 -> Result<()> {
+    if !source_dir.exists() {
+        return Err(io::Error::new(io::ErrorKind::NotFound, format!("{} does not exist", source_dir.to_str().unwrap())).into());
+    }
+
     if source_dir.is_dir() {
         for entry in fs::read_dir(source_dir)? {
             let entry = entry?;
