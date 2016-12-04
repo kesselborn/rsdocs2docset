@@ -29,6 +29,11 @@ quick_error! {
             cause(err)
             description(err.description())
         }
+        Utf8(err: std::string::FromUtf8Error) {
+            from()
+            cause(err)
+            description(err.description())
+        }
     }
 }
 
@@ -46,8 +51,8 @@ fn docset_tree_from_rs_doc_tree(source_dir: &Path, out_dir: &String,
                                 cb: &Fn(&DirEntry, &String) -> Result<()>)
                                 -> Result<()> {
     if source_dir.is_dir() {
-        for entry in try!(fs::read_dir(source_dir)) {
-            let entry = try!(entry);
+        for entry in fs::read_dir(source_dir)? {
+            let entry = entry?;
             let path = entry.path();
             if path.is_dir() {
                 try!(docset_tree_from_rs_doc_tree(&path, &out_dir, cb));
@@ -73,22 +78,19 @@ fn docset_file_from_rs_doc(input: &DirEntry, output_prefix: &String) -> Result<(
         ..Default::default()
     };
 
-    let mut in_file = try!(File::open(&input.path()));
-
-    let mut dom = try!(parse_document(RcDom::default(), opts)
+    let mut dom = parse_document(RcDom::default(), opts)
                            .from_utf8()
-                           .read_from(&mut in_file));
+                           .read_from( &mut File::open(&input.path())? )?;
 
     let entries = parser::find_entry_elements(&mut dom);
     manipulator::add_dash_links(&mut dom, &entries);
 
     let mut bytes = vec![];
-    serialize(&mut bytes, &dom.document, SerializeOpts::default()).unwrap();
-    let result = String::from_utf8(bytes).unwrap();
 
-    let mut out_file = try!(File::create(&output));
+    try!(serialize(&mut bytes, &dom.document, SerializeOpts::default()));
+    let result = String::from_utf8(bytes)?;
 
-    try!(out_file.write_all(result.as_ref()));
+    File::create(&output)?.write_all(result.as_ref())?;
 
     println!("Successfully added docset links from {} -> {}",
              input.path().display(),
