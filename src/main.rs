@@ -16,7 +16,6 @@ use std::io::{self,Write};
 use std::path::Path;
 use std::string::String;
 
-
 use rsdocs2docset::dom::{manipulator, parser};
 
 type Result<T> = std::result::Result<T, RsDoc2DocsetError>;
@@ -60,16 +59,16 @@ fn main() {
                                .takes_value(true))
                       .get_matches();
 
-    if let Err(e) = docset_tree_from_rs_doc_tree(Path::new(args.value_of("indir").unwrap()),
+    if let Err(e) = docset_from_rs_doc_tree(Path::new(args.value_of("indir").unwrap()),
                                                  &args.value_of("outfile").unwrap(),
-                                                 &docset_file_from_rs_doc) {
+                                                 &annotate_file) {
         println!{"error: {}", e}
 
     }
 }
 
-fn docset_tree_from_rs_doc_tree(source_dir: &Path, out_dir: &str,
-                                cb: &Fn(&DirEntry, &str) -> Result<()>)
+fn docset_from_rs_doc_tree(source_dir: &Path, out_dir: &str,
+                                annotate_file: &Fn(&DirEntry, &str) -> Result<()>)
                                 -> Result<()> {
     if !source_dir.exists() {
         return Err(io::Error::new(io::ErrorKind::NotFound, format!("{} does not exist", source_dir.to_str().unwrap())).into());
@@ -79,16 +78,16 @@ fn docset_tree_from_rs_doc_tree(source_dir: &Path, out_dir: &str,
         for entry in fs::read_dir(source_dir)? {
             let entry = entry?;
             if entry.path().is_dir() {
-                try!(docset_tree_from_rs_doc_tree(&source_dir, &out_dir, cb));
+                try!(docset_from_rs_doc_tree(&source_dir, &out_dir, annotate_file));
             } else {
-                try!(cb(&entry, &out_dir));
+                try!(annotate_file(&entry, &out_dir));
             }
         }
     }
     Ok(())
 }
 
-fn docset_file_from_rs_doc(input: &DirEntry, output_prefix: &str) -> Result<()> {
+fn annotate_file(input: &DirEntry, output_prefix: &str) -> Result<()> {
     let out_dir = Path::new(output_prefix).join(input.path());
     let output = out_dir.join(input.file_name());
 
