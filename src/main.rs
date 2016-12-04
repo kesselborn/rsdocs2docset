@@ -1,8 +1,10 @@
-extern crate docsrs2docset;
+extern crate rsdocs2docset;
 extern crate html5ever;
 #[macro_use]
 extern crate quick_error;
+extern crate clap;
 
+use clap::{Arg, App};
 use html5ever::driver::{ParseOpts, parse_document};
 use html5ever::rcdom::RcDom;
 use html5ever::serialize::{SerializeOpts, serialize};
@@ -14,7 +16,7 @@ use std::io::Write;
 use std::path::Path;
 use std::string::String;
 
-use docsrs2docset::dom::{manipulator, parser};
+use rsdocs2docset::dom::{manipulator, parser};
 
 type Result<T> = std::result::Result<T, RsDoc2DocsetError>;
 
@@ -38,24 +40,41 @@ quick_error! {
 }
 
 fn main() {
-    let out_dir = "out-dir".to_string();
+    let args = App::new("RsDoc2Docset")
+                      .version("0.0.1")
+                      .about("A tool that converts rust docs to Dash docset files")
+                      .arg(Arg::with_name("indir")
+                               .short("i")
+                               .long("rsdoc")
+                               .value_name("INDIR")
+                               .help("directory that contains rustdoc files")
+                               .required(true)
+                               .takes_value(true))
+                      .arg(Arg::with_name("outfile")
+                               .short("o")
+                               .long("outfile")
+                               .value_name("OUTFILE")
+                               .help("out file")
+                               .required(true)
+                               .takes_value(true))
+                      .get_matches();
 
-    if let Err(e) = docset_tree_from_rs_doc_tree(Path::new("target/doc"),
-                                                 &out_dir,
+    if let Err(e) = docset_tree_from_rs_doc_tree(Path::new(args.value_of("indir").unwrap()),
+                                                 &args.value_of("outfile").unwrap(),
                                                  &docset_file_from_rs_doc) {
         println!{"error: {}", e}
+
     }
 }
 
-fn docset_tree_from_rs_doc_tree(source_dir: &Path, out_dir: &String,
-                                cb: &Fn(&DirEntry, &String) -> Result<()>)
+fn docset_tree_from_rs_doc_tree(source_dir: &Path, out_dir: &str,
+                                cb: &Fn(&DirEntry, &str) -> Result<()>)
                                 -> Result<()> {
     if source_dir.is_dir() {
         for entry in fs::read_dir(source_dir)? {
             let entry = entry?;
-            let path = entry.path();
-            if path.is_dir() {
-                try!(docset_tree_from_rs_doc_tree(&path, &out_dir, cb));
+            if entry.path().is_dir() {
+                try!(docset_tree_from_rs_doc_tree(&source_dir, &out_dir, cb));
             } else {
                 try!(cb(&entry, &out_dir));
             }
@@ -64,7 +83,7 @@ fn docset_tree_from_rs_doc_tree(source_dir: &Path, out_dir: &String,
     Ok(())
 }
 
-fn docset_file_from_rs_doc(input: &DirEntry, output_prefix: &String) -> Result<()> {
+fn docset_file_from_rs_doc(input: &DirEntry, output_prefix: &str) -> Result<()> {
     let out_dir = Path::new(output_prefix).join(input.path());
     let output = out_dir.join(input.file_name());
 
@@ -86,8 +105,8 @@ fn docset_file_from_rs_doc(input: &DirEntry, output_prefix: &String) -> Result<(
     manipulator::add_dash_links(&mut dom, &entries);
 
     let mut bytes = vec![];
-
     try!(serialize(&mut bytes, &dom.document, SerializeOpts::default()));
+
     let result = String::from_utf8(bytes)?;
 
     File::create(&output)?.write_all(result.as_ref())?;

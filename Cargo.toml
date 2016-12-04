@@ -1,10 +1,10 @@
 [package]
-name = "docsrs2docset"
+name = "rsdocs2docset"
 version = "0.1.0"
 authors = ["Daniel Bornkessel"]
 
 [[bin]]
-name = "main"
+name = "rsdocs2docset"
 doc = false
 
 [dependencies]
