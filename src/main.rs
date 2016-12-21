@@ -51,20 +51,19 @@ fn main() {
              .help("directory that contains rustdoc files")
              .required(true)
              .takes_value(true))
-        .arg(Arg::with_name("outdir")
-             .short("o")
-             .long("outdir")
-             .value_name("OUTFILE")
-             .help("out file")
+        .arg(Arg::with_name("name")
+             .short("n")
+             .long("name")
+             .value_name("NAME")
+             .help("name of the docset")
              .required(true)
              .takes_value(true))
         .get_matches();
 
     if let Err(e) = docset_from_rs_doc_tree(Path::new(args.value_of("indir").unwrap()),
-    &args.value_of("outdir").unwrap(),
+    format!("{}.docset/Contents/Resources/Documents/", &args.value_of("name").unwrap()).as_str(),
     &annotate_file) {
         println!{"error: {}", e}
-
     }
 }
 
@@ -98,9 +97,7 @@ fn annotate_file(in_file: &DirEntry, output_prefix: &str) -> Result<()> {
 
     if in_file.path().extension() != Some(OsStr::new("html")) {
         try!(fs::copy(in_file.path(), &out_file));
-        println!("copied {} -> {}",
-                 in_file.path().display(),
-                 out_file.display());
+        //print!(".")
     } else {
         let opts = ParseOpts {
             tree_builder: TreeBuilderOpts { drop_doctype: true, ..Default::default() },
@@ -112,6 +109,9 @@ fn annotate_file(in_file: &DirEntry, output_prefix: &str) -> Result<()> {
             .read_from( &mut File::open(&in_file.path())? )?;
 
         let entries = parser::find_entry_elements(&mut dom);
+        for entry in entries.iter().filter_map(|x| x.as_ref()) {
+            println!("{}", entry)
+        }
         manipulator::add_dash_links(&mut dom, &entries);
 
         let mut bytes = vec![];
@@ -121,9 +121,7 @@ fn annotate_file(in_file: &DirEntry, output_prefix: &str) -> Result<()> {
 
         File::create(&out_file)?.write_all(result.as_ref())?;
 
-        println!("added docset links from {} to {}",
-                 in_file.path().display(),
-                 out_file.display());
+        //print!(".")
     }
 
     Ok(())

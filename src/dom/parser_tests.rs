@@ -1,172 +1,151 @@
 use super::{fixtures, parser};
 
 #[test]
-fn it_extracts_name_for_const_correctly() {
+fn it_extracts_const_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::CONST_SNIPPET);
 
-    let mut entries: Vec<super::Entry> = Vec::new();
+    let mut entries: Vec<Option<super::Entry>> = Vec::new();
     parser::walk_tree(&dom.document, &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
-        super::Entry::Const(_) => assert!(true),
+        Some(ref e) => {
+            assert_eq!(e.entry_name, *"HEAP".to_string());
+            assert_eq!(e.entry_type, *"constant".to_string());
+        }
         _ => assert!(false),
-    }
-
-    match parser::extract_entry_name(&entries[0]) {
-        Some(s) => assert_eq!(s, *"HEAP".to_string()),
-        None => assert_eq!(true, false),
     }
 }
 
 #[test]
-fn it_extracts_name_for_enum_correctly() {
+fn it_extracts_enum_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::ENUM_SNIPPET);
 
-    let mut entries: Vec<super::Entry> = Vec::new();
+    let mut entries: Vec<Option<super::Entry>> = Vec::new();
     parser::walk_tree(&dom.document, &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
-        super::Entry::Enum(_) => assert!(true),
+        Some(ref e) => {
+            assert_eq!(e.entry_name, *"Cow".to_string());
+            assert_eq!(e.entry_type, *"enum".to_string());
+        }
         _ => assert!(false),
-    }
-
-    match parser::extract_entry_name(&entries[0]) {
-        Some(s) => assert_eq!(s, *"Cow".to_string()),
-        None => assert_eq!(true, false),
     }
 }
 
 #[test]
-fn it_extracts_name_for_function_correctly() {
+fn it_extracts_function_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::FUNCTION_SNIPPET);
 
-    let mut entries: Vec<super::Entry> = Vec::new();
+    let mut entries: Vec<Option<super::Entry>> = Vec::new();
     parser::walk_tree(&dom.document, &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
-        super::Entry::Function(_) => assert!(true),
+        Some(ref e) => {
+            assert_eq!(e.entry_name, *"metadata".to_string());
+            assert_eq!(e.entry_type, *"function".to_string());
+        }
         _ => assert!(false),
-    }
-
-    match parser::extract_entry_name(&entries[0]) {
-        Some(s) => assert_eq!(s, *"metadata".to_string()),
-        None => assert_eq!(true, false),
     }
 }
 
 #[test]
-fn it_extracts_name_for_macro_correctly() {
+fn it_extracts_macro_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::MACRO_SNIPPET);
 
-    let mut entries: Vec<super::Entry> = Vec::new();
+    let mut entries: Vec<Option<super::Entry>> = Vec::new();
     parser::walk_tree(&dom.document, &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
-        super::Entry::Macro(_) => assert!(true),
+        Some(ref e) => {
+            assert_eq!(e.entry_name, *"println!".to_string());
+            assert_eq!(e.entry_type, *"macro".to_string());
+        }
         _ => assert!(false),
-    }
-
-    match parser::extract_entry_name(&entries[0]) {
-        Some(s) => assert_eq!(s, *"println!".to_string()),
-        None => assert_eq!(true, false),
     }
 }
 
 #[test]
-fn it_extracts_name_for_method_correctly() {
+fn it_extracts_method_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::METHOD_SNIPPET);
 
-    let mut entries: Vec<super::Entry> = Vec::new();
+    let mut entries: Vec<Option<super::Entry>> = Vec::new();
     parser::walk_tree(&dom.document, &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
-        super::Entry::Method(_) => assert!(true),
+        Some(ref e) => {
+            assert_eq!(e.entry_name, *"hash".to_string());
+            assert_eq!(e.entry_type, *"method".to_string());
+        }
         _ => assert!(false),
-    }
-
-    match parser::extract_entry_name(&entries[0]) {
-        Some(s) => assert_eq!(s, *"hash".to_string()),
-        None => assert_eq!(true, false),
     }
 }
 
 #[test]
-fn it_extracts_name_for_module_correctly() {
+fn it_extracts_module_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::MODULE_SNIPPET);
-
-    let mut entries: Vec<super::Entry> = Vec::new();
+    let mut entries: Vec<Option<super::Entry>> = Vec::new();
     parser::walk_tree(&dom.document, &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
-        super::Entry::Module(_) => assert!(true),
+        Some(ref e) => {
+            assert_eq!(e.entry_name, *"collections".to_string());
+            assert_eq!(e.entry_type, *"module".to_string());
+        }
         _ => assert!(false),
-    }
-
-    match parser::extract_entry_name(&entries[0]) {
-        Some(s) => assert_eq!(s, *"collections".to_string()),
-        None => assert_eq!(true, false),
     }
 }
 
 #[test]
-fn it_extracts_name_for_struct_correctly() {
+fn it_extracts_struct_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::STRUCT_SNIPPET);
 
-    let mut entries: Vec<super::Entry> = Vec::new();
+    let mut entries: Vec<Option<super::Entry>> = Vec::new();
     parser::walk_tree(&dom.document, &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
-        super::Entry::Struct(_) => assert!(true),
+        Some(ref e) => {
+            assert_eq!(e.entry_name, *"Bytes".to_string());
+            assert_eq!(e.entry_type, *"struct".to_string());
+        }
         _ => assert!(false),
-    }
-
-    match parser::extract_entry_name(&entries[0]) {
-        Some(s) => assert_eq!(s, *"Bytes".to_string()),
-        None => assert_eq!(true, false),
     }
 }
 
 #[test]
-fn it_extracts_name_for_trait_correctly() {
+fn it_extracts_trait_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::TRAIT_SNIPPET);
-
-    let mut entries: Vec<super::Entry> = Vec::new();
+    let mut entries: Vec<Option<super::Entry>> = Vec::new();
     parser::walk_tree(&dom.document, &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
-        super::Entry::Trait(_) => assert!(true),
+        Some(ref e) => {
+            assert_eq!(e.entry_name, *"Binary".to_string());
+            assert_eq!(e.entry_type, *"trait".to_string());
+        }
         _ => assert!(false),
-    }
-
-    match parser::extract_entry_name(&entries[0]) {
-        Some(s) => assert_eq!(s, *"Binary".to_string()),
-        None => assert_eq!(true, false),
     }
 }
 
 #[test]
-fn it_extracts_name_for_type_correctly() {
+fn it_extracts_type_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::TYPE_SNIPPET);
-
-    let mut entries: Vec<super::Entry> = Vec::new();
+    let mut entries: Vec<Option<super::Entry>> = Vec::new();
     parser::walk_tree(&dom.document, &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
-        super::Entry::Type(_) => assert!(true),
+        Some(ref e) => {
+            assert_eq!(e.entry_name, *"Output".to_string());
+            assert_eq!(e.entry_type, *"type".to_string());
+        }
         _ => assert!(false),
-    }
-
-    match parser::extract_entry_name(&entries[0]) {
-        Some(s) => assert_eq!(s, *"Output".to_string()),
-        None => assert_eq!(true, false),
     }
 }
