@@ -18,6 +18,19 @@ pub fn dom_from_snippet(s: &str) -> RcDom {
     dom
 }
 
+/// alloc::arc::Arc impl Arc, entry name: impl<T> Arc<T>
+pub static IMPL_SNIPPET: &'static str = r##"
+<h3 class="impl">
+    <span class="in-band">
+        <code>impl&lt;T:&nbsp;<a class="trait" href="../../core/clone/trait.Clone.html" title="core::clone::Clone">Clone</a>&gt; <a class="struct" href="../../alloc/arc/struct.Arc.html" title="alloc::arc::Arc">Arc</a>&lt;T&gt;</code>
+    </span>
+    <span class="out-of-band">
+        <div class="ghost"></div>
+        <a id="src-413" class="srclink" href="../../src/alloc/up/src/liballoc/arc.rs.html#487-571" title="goto source code">[src]</a>
+    </span>
+</h3>
+"##;
+
 
 /// alloc::boxed::HEAP constant, entry name: HEAP
 pub static CONST_SNIPPET: &'static str = r##"

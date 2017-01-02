@@ -97,6 +97,7 @@ fn annotate_file(in_file: &DirEntry, output_prefix: &str) -> Result<()> {
 
     if in_file.path().extension() != Some(OsStr::new("html")) {
         try!(fs::copy(in_file.path(), &out_file));
+        println!("{:70} | ", in_file.path().display());
         //print!(".")
     } else {
         let opts = ParseOpts {
@@ -110,6 +111,7 @@ fn annotate_file(in_file: &DirEntry, output_prefix: &str) -> Result<()> {
 
         let entries = parser::find_entry_elements(&mut dom);
         for entry in entries.iter().filter_map(|x| x.as_ref()) {
+            print!("{:70} | ", in_file.path().display());
             println!("{}", entry)
         }
         manipulator::add_dash_links(&mut dom, &entries);

@@ -18,11 +18,13 @@ pub struct Entry {
     entry_type: String,
     entry_name: String,
     anchor_name: String,
+    is_section: bool,
 }
 
 static mut N: i32 = 5;
 impl Entry {
-    fn new(e: Handle, entry_type: &str, entry_name: Option<String>) -> Option<Entry> {
+    fn new(e: Handle, entry_type: &str, entry_name: Option<String>, is_section: bool)
+           -> Option<Entry> {
         match entry_name {
             Some(entry_name) => {
                 let n = unsafe {
@@ -30,7 +32,11 @@ impl Entry {
                     N
                 };
 
-                let anchor_name = format!("//dash_ref_{}/{}/{}/{}", n, entry_type, entry_name, "0");
+                let anchor_name = format!("//dash_ref_{}/{}/{}/{}",
+                                          n,
+                                          entry_type,
+                                          entry_name,
+                                          if is_section { "1" } else { "0" });
 
 
                 Some(Entry {
@@ -38,6 +44,7 @@ impl Entry {
                     entry_name: entry_name,
                     entry_type: String::from(entry_type),
                     anchor_name: anchor_name,
+                    is_section: is_section,
                 })
             }
             None => None,
@@ -48,9 +55,10 @@ impl Entry {
 impl fmt::Display for Entry {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f,
-               "{:>15} | {:30} | {}",
+               "{:>15} | {:30} | {:5} | {}",
                self.entry_type,
                self.entry_name,
+               self.is_section,
                self.anchor_name)
     }
 }
