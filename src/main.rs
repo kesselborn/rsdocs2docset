@@ -3,6 +3,7 @@ extern crate html5ever;
 #[macro_use]
 extern crate quick_error;
 extern crate clap;
+extern crate url;
 
 use clap::{Arg, App};
 use html5ever::driver::{ParseOpts, parse_document};

@@ -9,9 +9,13 @@ doc = false
 
 [dependencies]
 html5ever = "*"
+html5ever-atoms = "*"
 string_cache = "*"
 sqlite = "*"
 tendril = "*"
 clap = "*"
 quick-error = "*"
 regex = "*"
+
+[dependencies.url]
+git = "https://github.com/servo/rust-url"

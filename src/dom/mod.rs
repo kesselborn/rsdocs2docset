@@ -1,5 +1,6 @@
 use html5ever::rcdom::Handle;
 use std::fmt;
+use url::percent_encoding::{QUERY_ENCODE_SET, percent_encode};
 
 pub mod parser;
 pub mod manipulator;
@@ -41,7 +42,7 @@ impl Entry {
 
                 Some(Entry {
                     handle: e,
-                    entry_name: entry_name,
+                    entry_name: percent_encode(entry_name.as_bytes(), QUERY_ENCODE_SET).collect(),
                     entry_type: String::from(entry_type),
                     anchor_name: anchor_name,
                     is_section: is_section,

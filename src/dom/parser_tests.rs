@@ -170,7 +170,8 @@ fn it_extracts_impl_entry_correctly() {
         Some(ref e) => {
             assert_eq!(e.entry_type, *"method".to_string());
             assert_eq!(e.is_section, true);
-            assert_eq!(e.entry_name, *"impl<T: Clone> Arc<T>".to_string());
+            assert_eq!(e.entry_name,
+                       *"impl%3CT:%20Clone%3E%20Arc%3CT%3E".to_string());
         }
         _ => assert!(false),
     }
