@@ -63,9 +63,35 @@ fn main() {
 
     if let Err(e) = docset_from_rs_doc_tree(Path::new(args.value_of("indir").unwrap()),
     format!("{}.docset/Contents/Resources/Documents/", &args.value_of("name").unwrap()).as_str(),
-    &annotate_file) {
-        println!{"error: {}", e}
-    }
+	&annotate_file) {
+		println!{"error: {}", e}
+	}
+
+	let info_plist = format!(r##"<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>CFBundleIdentifier</key>
+    <string>{identifier}</string>
+
+    <key>CFBundleName</key>
+    <string>{name}</string>
+
+    <key>DocSetPlatformFamily</key>
+    <string>dashtoc2</string>
+
+    <key>isDashDocset</key>
+    <true/>
+  </dict>
+</plist>
+"##, name = args.value_of("name").unwrap(), identifier = String::from(args.value_of("name").unwrap()).replace(" ", "-").to_lowercase());
+
+
+	let path_str = format!("{}.docset/Contents/Info.plist", &args.value_of("name").unwrap());
+    let plist_path = Path::new(&path_str);
+	if let Err(e) = File::create(plist_path).and_then(|mut x| x.write_all(info_plist.as_ref())) {
+		println!{"error: {}", e}
+	}
 }
 
 fn docset_from_rs_doc_tree(source_dir: &Path, out_dir: &str,
