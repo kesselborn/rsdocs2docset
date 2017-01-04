@@ -16,9 +16,9 @@ mod manipulator_tests;
 
 pub struct Entry {
     handle: Handle,
-    entry_type: String,
-    entry_name: String,
-    anchor_name: String,
+    pub entry_type: String,
+    pub entry_name: String,
+    pub anchor_name: String,
     is_section: bool,
 }
 
@@ -36,13 +36,14 @@ impl Entry {
                 let anchor_name = format!("//dash_ref_{}/{}/{}/{}",
                                           n,
                                           entry_type,
-                                          entry_name,
+                                          percent_encode(entry_name.as_bytes(), QUERY_ENCODE_SET)
+                                              .collect::<String>(),
                                           if is_section { "1" } else { "0" });
 
 
                 Some(Entry {
                     handle: e,
-                    entry_name: percent_encode(entry_name.as_bytes(), QUERY_ENCODE_SET).collect(),
+                    entry_name: entry_name,
                     entry_type: String::from(entry_type),
                     anchor_name: anchor_name,
                     is_section: is_section,
