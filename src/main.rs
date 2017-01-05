@@ -72,36 +72,25 @@ fn main() {
 		println!{"error: {}", e}
 	}
 
-	let info_plist = format!(r##"<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-  <dict>
-    <key>CFBundleIdentifier</key>
-    <string>{identifier}</string>
-
-    <key>CFBundleName</key>
-    <string>{name}</string>
-
-    <key>DocSetPlatformFamily</key>
-    <string>crate</string>
-
-    <key>DashDocSetFamily</key>
-    <string>dashtoc2</string>
-
-    <key>isDashDocset</key>
-    <true/>
-
-    <key>isJavaScriptEnabled</key>
-    <true/>
-
-  </dict>
-</plist>
-"##, name = args.value_of("name").unwrap(), identifier = String::from(args.value_of("name").unwrap()).replace(" ", "-").to_lowercase());
-
+	let info_plist = format!(include_str!("Info.plist.tmpl"), name = args.value_of("name").unwrap(), identifier = String::from(args.value_of("name").unwrap()).replace(" ", "-").to_lowercase());
 
 	let plist_path_str = format!("{}.docset/Contents/Info.plist", &args.value_of("name").unwrap());
     let plist_path = Path::new(&plist_path_str);
 	if let Err(e) = File::create(plist_path).and_then(|mut x| x.write_all(info_plist.as_ref())) {
+		println!{"error: {}", e}
+	}
+
+    let icon = include_bytes!("icon.png");
+	let icon_path_str = format!("{}.docset/icon.png", &args.value_of("name").unwrap());
+    let icon_path = Path::new(&icon_path_str);
+	if let Err(e) = File::create(icon_path).and_then(|mut x| x.write_all(icon)) {
+		println!{"error: {}", e}
+	}
+
+    let icon_2x = include_bytes!("icon@2x.png");
+	let icon_2x_path_str = format!("{}.docset/icon_2x_.png", &args.value_of("name").unwrap());
+    let icon_2x_path = Path::new(&icon_2x_path_str);
+	if let Err(e) = File::create(icon_2x_path).and_then(|mut x| x.write_all(icon_2x)) {
 		println!{"error: {}", e}
 	}
 

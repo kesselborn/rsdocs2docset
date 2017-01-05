@@ -1,3 +1,5 @@
-/target
-/tags
+*.swp
+.DS_Store
 /*.html
+/tags
+/target
