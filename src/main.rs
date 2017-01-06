@@ -1,12 +1,13 @@
-extern crate rsdocs2docset;
-extern crate html5ever;
-#[macro_use]
-extern crate quick_error;
+#[macro_use] extern crate quick_error;
+
 extern crate clap;
-extern crate url;
+extern crate html5ever;
+extern crate rsdocs2docset;
 extern crate sqlite;
+extern crate url;
 
 use clap::{Arg, App};
+
 use html5ever::driver::{ParseOpts, parse_document};
 use html5ever::rcdom::RcDom;
 use html5ever::serialize::{SerializeOpts, serialize};
