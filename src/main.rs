@@ -11,7 +11,6 @@ use html5ever::driver::{ParseOpts, parse_document};
 use html5ever::rcdom::RcDom;
 use html5ever::serialize::{SerializeOpts, serialize};
 use html5ever::tendril::TendrilSink;
-use html5ever::tree_builder::TreeBuilderOpts;
 
 use std::ffi::OsStr;
 use std::fs::{self, DirBuilder, DirEntry, File};
@@ -116,14 +115,12 @@ fn annotate_file(in_file: &DirEntry, output_prefix: &str, db_path: &Path) -> Res
     let out_file = Path::new(output_prefix).join(in_file.path());
 
     if in_file.path().extension() != Some(OsStr::new("html")) {
-        try!(write_file(Path::new(&out_file), "".as_bytes()));
+        try!(write_file(&out_file, "".as_bytes())); // just so we are sure the parent's directory exists
         try!(fs::copy(in_file.path(), &out_file));
         //println!("{:70} | ", in_file.path().display());
         print!("."); io::stdout().flush().unwrap();
     } else {
-        let opts = ParseOpts { tree_builder: TreeBuilderOpts { drop_doctype: true, ..Default::default() }, ..Default::default() };
-
-        let mut dom = parse_document(RcDom::default(), opts)
+        let mut dom = parse_document(RcDom::default(), ParseOpts::default())
             .from_utf8()
             .read_from( &mut File::open(&in_file.path())? )?;
 
