@@ -20,7 +20,7 @@ use std::path::Path;
 
 use rsdocs2docset::dom::{manipulator, parser};
 
-type Result<T> = std::result::Result<T, RsDoc2DocsetError>;
+type Result = std::result::Result<(), RsDoc2DocsetError>;
 
 quick_error! {
     #[derive(Debug)]
@@ -67,7 +67,7 @@ fn main() {
     println!("\n{}.docset successfully created!", args.value_of("name").unwrap())
 }
 
-fn create_docset(indir: &str, name: &str) -> Result<()> {
+fn create_docset(indir: &str, name: &str) -> Result {
     let db_filename = format!("{}.docset/Contents/Resources/docSet.dsidx", name);
     let db_path = Path::new(&db_filename);
 
@@ -83,7 +83,7 @@ fn create_docset(indir: &str, name: &str) -> Result<()> {
     Ok(())
 }
 
-fn write_file(path: &Path, data: &[u8]) -> Result<()> {
+fn write_file(path: &Path, data: &[u8]) -> Result {
     let dir = path.parent().unwrap();
 
     try!(DirBuilder::new()
@@ -95,8 +95,8 @@ fn write_file(path: &Path, data: &[u8]) -> Result<()> {
 }
 
 fn docset_from_rs_doc_tree(source_dir: &Path, out_dir: &str, db_path: &Path,
-                           annotate_file: &Fn(&DirEntry, &str, &Path) -> Result<()>)
-    -> Result<()> {
+                           annotate_file: &Fn(&DirEntry, &str, &Path) -> Result)
+    -> Result {
         if !source_dir.exists() {
             return Err(io::Error::new(io::ErrorKind::NotFound, format!("{} does not exist", source_dir.to_str().unwrap())).into());
         }
@@ -114,7 +114,7 @@ fn docset_from_rs_doc_tree(source_dir: &Path, out_dir: &str, db_path: &Path,
         Ok(())
     }
 
-fn annotate_file(in_file: &DirEntry, output_prefix: &str, db_path: &Path) -> Result<()> {
+fn annotate_file(in_file: &DirEntry, output_prefix: &str, db_path: &Path) -> Result {
     let out_file = Path::new(output_prefix).join(in_file.path());
 
     if in_file.path().extension() != Some(OsStr::new("html")) {
