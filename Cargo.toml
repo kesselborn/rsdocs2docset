@@ -1,10 +1,10 @@
 [package]
 name = "rsdocs2docset"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Daniel Bornkessel"]
 description = "This is a small tool to generate a docsets for Dash / Velocity / Zeal / LovelyDocs out of Rust docs."
-homepage = "https://git.bornkessel.com/kesselborn/rsdocs2docset"
-repository = "https://git.bornkessel.com/kesselborn/rsdocs2docset"
+homepage = "https://github.com/kesselborn/rsdocs2docset"
+repository = "https://github.com/kesselborn/rsdocs2docset"
 readme = "README.md"
 keywords = ["docs", "docset", "rsdoc"]
 license = "MIT"
