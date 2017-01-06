@@ -74,12 +74,16 @@ fn create_docset(indir: &str, name: &str) -> Result {
     try!(write_file(Path::new(format!("{}.docset/icon.png", name).as_str()), include_bytes!("icon.png")));
     try!(write_file(Path::new(format!("{}.docset/icon@2x.png", name).as_str()), include_bytes!("icon@2x.png")));
 
-    try!(write_file(db_path, "".as_bytes()));
+    try!(touch(db_path));
     try!(sqlite::open(db_path).and_then(|c| c.execute("CREATE TABLE searchIndex(id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT);")));
 
     try!(docset_from_rs_doc_tree(&Path::new(indir), format!("{}.docset/Contents/Resources/Documents/", name).as_str(), Path::new(db_path)));
 
     Ok(())
+}
+
+fn touch(path: &Path) -> Result {
+    write_file(path, "".as_bytes())
 }
 
 fn write_file(path: &Path, data: &[u8]) -> Result {
@@ -115,7 +119,7 @@ fn annotate_file(in_file: &DirEntry, output_prefix: &str, db_path: &Path) -> Res
     let out_file = Path::new(output_prefix).join(in_file.path());
 
     if in_file.path().extension() != Some(OsStr::new("html")) {
-        try!(write_file(&out_file, "".as_bytes())); // just so we are sure the parent's directory exists
+        try!(touch(&out_file));
         try!(fs::copy(in_file.path(), &out_file));
         //println!("{:70} | ", in_file.path().display());
         print!("."); io::stdout().flush().unwrap();
@@ -135,7 +139,7 @@ fn annotate_file(in_file: &DirEntry, output_prefix: &str, db_path: &Path) -> Res
 
         let mut bytes = vec![];
         try!(serialize(&mut bytes, &dom.document, SerializeOpts::default()));
-        try!(write_file(&out_file, bytes.as_ref()));
+        try!(touch(&out_file));
 
         print!("o"); io::stdout().flush().unwrap();
     }
