@@ -2,7 +2,7 @@
 name = "rsdocs2docset"
 version = "0.1.0"
 authors = ["Daniel Bornkessel"]
-description = "This is a small tool to generate a docsets for [Dash](https://kapeli.com/dash) / [Velocity](http://velocity.silverlakesoftware.com) / [Zeal](https://zealdocs.org) / [LovelyDocs](https://zealdocs.org) out of Rust docs."
+description = "This is a small tool to generate a docsets for Dash / Velocity / Zeal / LovelyDocs out of Rust docs."
 homepage = "https://git.bornkessel.com/kesselborn/rsdocs2docset"
 repository = "https://git.bornkessel.com/kesselborn/rsdocs2docset"
 readme = "README.md"
