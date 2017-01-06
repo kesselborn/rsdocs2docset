@@ -45,7 +45,7 @@ quick_error! {
 
 fn main() {
     let args = App::new("RsDoc2Docset")
-        .version("0.0.1")
+        .version(include_str!("../VERSION"))
         .about("A tool that converts rust docs to Dash docset files")
         .arg(Arg::with_name("indir")
              .short("i")
