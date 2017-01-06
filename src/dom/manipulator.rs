@@ -9,13 +9,9 @@ pub fn add_dash_links(mut dom: &mut RcDom, entries: &Vec<Option<Entry>>) {
         value: format_tendril!("dashAnchor"),
     };
 
-    // https://kapeli.com/docsets#tableofcontents
-    // https://kapeli.com/docsets#supportedentrytypes
     for entry in entries.iter().filter_map(|x| x.as_ref()) {
         let name_attr = html5ever::Attribute {
             name: qualname!("", "name"),
-            // TODO: percent escape entryname
-            // //dash_ref_SOMEID/TYPE/NAME/IS_SECTION
             value: format_tendril!("{}", entry.anchor_name),
         };
         let dash_link = dom.create_element(qualname!(html, "a"),

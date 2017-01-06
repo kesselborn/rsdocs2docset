@@ -28,17 +28,17 @@ impl Entry {
            -> Option<Entry> {
         match entry_name {
             Some(entry_name) => {
-                let n = unsafe {
-                    N += 1;
-                    N
-                };
 
-                let anchor_name = format!("//dash_ref_{}/{}/{}/{}",
-                                          n,
-                                          entry_type,
-                                          percent_encode(entry_name.as_bytes(), QUERY_ENCODE_SET)
-                                              .collect::<String>(),
-                                          if is_section { "1" } else { "0" });
+                let anchor_name = format!("//dash_ref_{id}/{type}/{name}/{is_section}",
+                                          id = unsafe {
+                                              N += 1;
+                                              N
+                                          },
+                                          type = entry_type,
+                                          name = percent_encode(entry_name.as_bytes(),
+                                                                QUERY_ENCODE_SET)
+                                                     .collect::<String>(),
+                                          is_section = if is_section { "1" } else { "0" });
 
 
                 Some(Entry {
