@@ -78,7 +78,7 @@ fn create_docset(indir: &str, name: &str) -> Result {
     try!(write_file(db_path, "".as_bytes()));
     try!(sqlite::open(db_path).and_then(|c| c.execute("CREATE TABLE searchIndex(id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT);")));
 
-    try!(docset_from_rs_doc_tree(&Path::new(indir), format!("{}.docset/Contents/Resources/Documents/", name).as_str(), Path::new(db_path), &annotate_file));
+    try!(docset_from_rs_doc_tree(&Path::new(indir), format!("{}.docset/Contents/Resources/Documents/", name).as_str(), Path::new(db_path)));
 
     Ok(())
 }
@@ -94,9 +94,7 @@ fn write_file(path: &Path, data: &[u8]) -> Result {
     Ok(())
 }
 
-fn docset_from_rs_doc_tree(source_dir: &Path, out_dir: &str, db_path: &Path,
-                           annotate_file: &Fn(&DirEntry, &str, &Path) -> Result)
-    -> Result {
+fn docset_from_rs_doc_tree(source_dir: &Path, out_dir: &str, db_path: &Path) -> Result {
         if !source_dir.exists() {
             return Err(io::Error::new(io::ErrorKind::NotFound, format!("{} does not exist", source_dir.to_str().unwrap())).into());
         }
@@ -105,7 +103,7 @@ fn docset_from_rs_doc_tree(source_dir: &Path, out_dir: &str, db_path: &Path,
             for entry in fs::read_dir(source_dir)? {
                 let entry = entry?;
                 if entry.path().is_dir() {
-                    try!(docset_from_rs_doc_tree(&entry.path(), &out_dir, &db_path, annotate_file));
+                    try!(docset_from_rs_doc_tree(&entry.path(), &out_dir, &db_path));
                 } else {
                     try!(annotate_file(&entry, &out_dir, &db_path));
                 }
