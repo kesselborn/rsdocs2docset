@@ -105,7 +105,9 @@ fn get_text(h: &Handle) -> Option<String> {
     for e in node.children.iter() {
         match e.borrow().node {
             Text(ref t) => text_tokens.push(t.to_string()),
-            _ => text_tokens.push(get_text(e).unwrap_or(String::from(""))),
+            _ => if let Some(s) = get_text(e) {
+                text_tokens.push(s)
+            },
         }
     }
 
