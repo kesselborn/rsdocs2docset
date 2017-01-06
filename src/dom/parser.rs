@@ -83,15 +83,15 @@ fn find_element_with_class(h: &Handle, class_value: &str) -> Option<Handle> {
         if let Element(_, _, ref attrs) = e.borrow().node {
             if attrs.iter()
                     .find(|ref attr| attr.name == qualname!("", "class"))
-                    .and_then(|attr| Some(attr.value.to_string() == class_value)) !=
-               None {
+                    .and_then(|attr| Some(attr.value.to_string() == class_value))
+                    .unwrap_or(false) {
                 return Some(e.clone());
             }
         }
 
         // recurse down and check children
-        if let Some(e) = find_element_with_class(e, class_value) {
-            return Some(e);
+        if let Some(x) = find_element_with_class(e, class_value) {
+            return Some(x);
         }
     }
     None
