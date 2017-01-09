@@ -4,8 +4,8 @@ set -ex
 
 # TODO This is the "test phase", tweak it as you see fit
 main() {
-    cross build --verbose --target $TARGET
-    cross build --verbose --target $TARGET --release
+    cross build --locked --verbose --target $TARGET
+    cross build --locked --verbose --target $TARGET --release
 
     if [ -n $DISABLE_TESTS ]; then
         return
