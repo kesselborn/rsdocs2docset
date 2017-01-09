@@ -19,7 +19,7 @@ pub struct Entry {
     pub entry_type: String,
     pub entry_name: String,
     pub anchor_name: String,
-    is_section: bool,
+    pub is_section: bool,
 }
 
 static mut N: i32 = 5;
