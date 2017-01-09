@@ -1,6 +1,6 @@
 [root]
 name = "rsdocs2docset"
-version = "0.2.6"
+version = "0.2.7"
 dependencies = [
  "clap 2.19.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "html5ever 0.12.1 (registry+https://github.com/rust-lang/crates.io-index)",
