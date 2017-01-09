@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
-vi Cargo.toml
+vi Cargo.toml || true
 cargo generate-lockfile
-git commit -v Cargo.toml Cargo.lock VERSION
-git tag v${version}
+git commit --amend -v Cargo.toml Cargo.lock
+git tag v$(grep --max-count 1 "^version" Cargo.toml | grep -Eo "[0-9\.]+")
 git push --tags && git push
