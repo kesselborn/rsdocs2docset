@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-vi VERSION
+vi VERSION || true
 version=$(cat VERSION)
 sed -i "" -e "s/^version =.*$/version = \"${version}\"/g" Cargo.toml
 cargo generate-lockfile
