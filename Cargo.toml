@@ -1,6 +1,6 @@
 [package]
 name = "rsdocs2docset"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["Daniel Bornkessel"]
 description = "This is a small tool to generate a docsets for Dash / Velocity / Zeal / LovelyDocs out of Rust docs."
 homepage = "https://github.com/kesselborn/rsdocs2docset"
