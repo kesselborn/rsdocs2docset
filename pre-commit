@@ -1,0 +1,4 @@
+#!/bin/bash -xe
+
+test "$(grep --max-count 1 version Cargo.toml)" = "version = \"$(cat VERSION)\""
+test "$(grep --max-count 1 version Cargo.toml)" = "$(grep --max-count 1 version Cargo.lock)"

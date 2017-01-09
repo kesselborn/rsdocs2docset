@@ -1,0 +1,8 @@
+#!/bin/bash
+
+version=$(cat VERSION)
+
+sed -i "" -e "s/^version =.*$/version = \"${version}\"/g" Cargo.toml
+cargo generate-lockfile
+git tag v${version}
+git commit -v Cargo.toml Cargo.lock VERSION && git push --tags && git push
