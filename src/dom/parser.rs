@@ -5,12 +5,14 @@ use super::Entry;
 
 pub fn find_entry_elements(dom: &mut RcDom) -> Vec<Option<Entry>> {
     let mut entries = vec![];
-    walk_tree(&dom.document, &mut entries);
+    walk_tree(&dom.document, String::from(""), &mut entries);
     entries
 }
 
 
-pub fn walk_tree(h: &Handle, entries: &mut Vec<Option<Entry>>) {
+pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) {
+    let mut current_context: Option<String> = None;
+
     for e in h.borrow().children.iter() {
         if let Element(ref name, _, ref attrs) = e.borrow().node {
             let tag = &(*name.local.to_ascii_lowercase());
@@ -19,71 +21,114 @@ pub fn walk_tree(h: &Handle, entries: &mut Vec<Option<Entry>>) {
                                            .and_then(|c| Some(c.clone().value.to_string())) {
 
                 match (tag, class_attr.as_str()) {
-                    ("h3", "impl") => entries.push(Entry::new(e.clone(),
-                                                              "Method",
-                                                              extract_entry_name(&e, "in-band"),
-                                                              true)),
+                    ("h3", "impl") =>
+                        entries.push(Entry::new(e.clone(),
+                                                "Method",
+                                                extract_entry_name(&e, Some("in-band")),
+                                                true)),
+
                     ("h4", "method") => entries.push(Entry::new(e.clone(),
                                                                 "Method",
-                                                                extract_entry_name(&e, "fnname"),
+                                                                Some(format!("{}::{}",
+																			 context,
+                                                             extract_entry_name(&e,
+                                                                                Some("fnname"))
+                                                                 .unwrap_or(String::from("")))),
                                                                 false)),
-                    ("h4", "type") => entries.push(Entry::new(e.clone(),
-                                                              "Type",
-                                                              extract_entry_name(&e, "type"),
-                                                              false)),
+
+                    ("h3", "method stab") => entries.push(Entry::new(e.clone(),
+                                                                     "Method",
+                                                                     Some(format!("{}::{}",
+																			 context,
+                                                             extract_entry_name(&e,
+                                                                                Some("fnname"))
+                                                                 .unwrap_or(String::from("")))),
+                                                                     false)),
+
+                    ("h4", "type") =>
+                        entries.push(Entry::new(e.clone(),
+                                                "Type",
+                                                extract_entry_name(&e, None).and_then(|s| {
+                                                    Some(s.replace("type ", "::")
+                                                          .replace(" = ", "=")
+                                                          .rsplit('=')
+                                                          .collect())
+                                                }),
+                                                false)),
+
                     ("section", "content constant") =>
                         entries.push(Entry::new(e.clone(),
                                                 "Constant",
-                                                extract_entry_name(&e, "constant"),
+                                                extract_entry_name(&e, Some("in-band")),
                                                 false)),
-                    ("section", "content enum") =>
-                        entries.push(Entry::new(e.clone(),
-                                                "Enum",
-                                                extract_entry_name(&e, "enum"),
-                                                false)),
+
+                    ("section", "content enum") => {
+                        current_context = extract_entry_name(&e, Some("in-band"))
+                                              .and_then(|s| Some(s.replace("Enum ", "")));
+                        entries.push(Entry::new(e.clone(), "Enum", current_context.clone(), false))
+                    }
+
                     ("section", "content fn") =>
                         entries.push(Entry::new(e.clone(),
                                                 "Function",
-                                                extract_entry_name(&e, "fn"),
+                                                extract_entry_name(&e, Some("in-band"))
+                                                    .and_then(|s| {
+                                                        Some(s.replace("Function ", ""))
+                                                    }),
                                                 false)),
+
                     ("section", "content macro") =>
                         entries.push(Entry::new(e.clone(),
                                                 "Macro",
-                                                extract_entry_name(&e, "macro"),
+                                                extract_entry_name(&e, Some("in-band")),
                                                 false)),
+
                     ("section", "content mod") =>
                         entries.push(Entry::new(e.clone(),
                                                 "Module",
-                                                extract_entry_name(&e, "mod"),
+                                                extract_entry_name(&e, Some("in-band"))
+                                                    .and_then(|s| Some(s.replace("Crate ", ""))),
                                                 false)),
-                    ("section", "content struct") =>
+
+                    ("section", "content struct") => {
+                        current_context = extract_entry_name(&e, Some("in-band"))
+                                              .and_then(|s| Some(s.replace("Struct ", "")));
                         entries.push(Entry::new(e.clone(),
                                                 "Struct",
-                                                extract_entry_name(&e, "struct"),
-                                                false)),
-                    ("section", "content trait") =>
-                        entries.push(Entry::new(e.clone(),
-                                                "Trait",
-                                                extract_entry_name(&e, "trait"),
-                                                false)),
+                                                current_context.clone(),
+                                                false))
+                    }
+
+                    ("section", "content trait") => {
+                        current_context = extract_entry_name(&e, Some("in-band"))
+                                              .and_then(|s| Some(s.replace("Trait ", "")));
+                        entries.push(Entry::new(e.clone(), "Trait", current_context.clone(), false))
+                    }
+
                     (_, _) => {}
                 }
             }
         }
-        walk_tree(e, entries);
+        walk_tree(e,
+                  current_context.clone().unwrap_or(context.clone()),
+                  entries);
     }
 }
 
-pub fn extract_entry_name(e: &Handle, element_class: &str) -> Option<String> {
+pub fn extract_entry_name(e: &Handle, element_class: Option<&str>) -> Option<String> {
     find_element_with_class(e, element_class).and_then(|x| get_text(&x))
 }
 
-fn find_element_with_class(h: &Handle, class_value: &str) -> Option<Handle> {
+fn find_element_with_class(h: &Handle, class_value: Option<&str>) -> Option<Handle> {
+    if class_value.is_none() {
+        return Some(h.clone());
+    }
+
     for e in h.borrow().children.iter() {
         if let Element(_, _, ref attrs) = e.borrow().node {
             if attrs.iter()
                     .find(|ref attr| attr.name == qualname!("", "class"))
-                    .and_then(|attr| Some(attr.value.to_string() == class_value))
+                    .and_then(|attr| Some(attr.value.to_string() == class_value.unwrap()))
                     .unwrap_or(false) {
                 return Some(e.clone());
             }
@@ -119,6 +164,8 @@ fn get_text(h: &Handle) -> Option<String> {
                  .replace("\u{a0}", "")
                  .replace(" >", ">")
                  .replace(" <", "<")
+                 .replace(" ::", "::")
+                 .replace(":: ", "::")
                  .replace("  ", " "))
     } else {
         None

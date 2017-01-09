@@ -32,7 +32,7 @@ pub static IMPL_SNIPPET: &'static str = r##"
 "##;
 
 
-/// alloc::boxed::HEAP constant, entry name: HEAP
+/// alloc::boxed::HEAP constant
 pub static CONST_SNIPPET: &'static str = r##"
   <section id="main" class="content constant">
     <h1 class="fqn">
@@ -50,7 +50,7 @@ pub static CONST_SNIPPET: &'static str = r##"
   </section>
 "##;
 
-// collections::borrow::Cow, entry name: Cow
+// collections::borrow::Cow
 pub static ENUM_SNIPPET: &'static str = r##"
   <section id="main" class="content enum">
     <h1 class="fqn">
@@ -66,7 +66,7 @@ pub static ENUM_SNIPPET: &'static str = r##"
   </section>
 "##;
 
-// Function std::fs::metadata, entry name: metadata
+// Function std::fs::metadata
 pub static FUNCTION_SNIPPET: &'static str = r##"
   <section id="main" class="content fn">
     <h1 class="fqn">
@@ -82,7 +82,7 @@ pub static FUNCTION_SNIPPET: &'static str = r##"
   </section>
 "##;
 
-// Macro std::println!, entry name: println!
+// Macro std::println
 pub static MACRO_SNIPPET: &'static str = r##"
   <section id="main" class="content macro">
     <h1 class="fqn">
@@ -96,12 +96,99 @@ pub static MACRO_SNIPPET: &'static str = r##"
   </section>
 "##;
 
-// Method Hash::hash, entry name: hash
-pub static METHOD_SNIPPET: &'static str = r##"
-  <h4 id="method.hash" class="method">
-    <code>fn <a href="../../core/hash/trait.Hash.html#tymethod.hash" class="fnname">hash</a>&lt;H:&nbsp;<a class="trait" href="../../core/hash/trait.Hasher.html" title="core::hash::Hasher">Hasher</a>&gt;(&amp;self, state: &amp;mut H)</code>
-    <a href="javascript:void(0)" class="collapse-toggle">[<span class="inner">−</span>]</a>
-  </h4>
+pub static TRAIT_METHOD_SNIPPET: &'static str = r##"
+<html>
+<body class="rustdoc">
+  <section class="content trait" id="main">
+    <h1 class="fqn"><span class="in-band">Trait <a href="../index.html">collections</a>::<wbr><a href="index-2.html">borrow</a>::<wbr><a class="trait" href=
+    "#">Borrow</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> <span id="render-detail"><a href=
+    "javascript:void(0)" id="toggle-all-docs" title="collapse all docs">[<span class="inner">−</span>]</a></span> <a class="srclink" href=
+    "../../core/borrow/trait.Borrowb39b.html?gotosrc=2749" id="src-2749" title="goto source code">[src]</a></span></h1>
+    <pre class="rust trait">pub trait Borrow&lt;Borrowed&gt; <span class="where">where Borrowed: ?<a class="trait" href="../../core/marker/trait.Sized.html"
+    title="core::marker::Sized">Sized</a></span> {
+    fn <a class="fnname" href="#tymethod.borrow">borrow</a>(&amp;self) -&gt; &amp;Borrowed;
+}</pre><a class="dashAnchor" id="//dash_ref_589/Method/Required%20Methods/1" name="//dash_ref_589/Method/Required%20Methods/1"></a>
+    <h2 id="required-methods">Required Methods</h2>
+    <div class="methods">
+      <a class="dashAnchor" id="//dash_ref_588/Method/borrow/0" name="//dash_ref_588/Method/borrow/0"></a>
+      <h3 class="method stab" id="tymethod.borrow"><span class="invisible" id="borrow.v"><code>fn <a class="fnname" href=
+      "#tymethod.borrow">borrow</a>(&amp;self) -&gt; &amp;Borrowed</code></span><a class="collapse-toggle" href="javascript:void(0)">[<span class=
+      "inner">−</span>]</a></h3>
+    </div>
+  </section>
+</body>
+</html>
+"##;
+
+pub static ENUM_METHOD_SNIPPET: &'static str = r##"
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+</head>
+<body class="rustdoc">
+  <nav class="sub">
+    <form class="search-form">
+      <div class="search-container">
+        <input autocomplete="off" class="search-input" name="search" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search">
+      </div>
+    </form>
+  </nav>
+  <section class="content enum" id="main">
+    <h1 class="fqn"><span class="in-band">Enum <a href="../index.html">collections</a>::<wbr><a href="index-2.html">borrow</a>::<wbr><a class="enum" href=
+    "#">Cow</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> <span id="render-detail"><a href=
+    "javascript:void(0)" id="toggle-all-docs" title="collapse all docs">[<span class="inner">−</span>]</a></span> <a class="srclink" href=
+    "../../src/collections/up/src/libcollections/borrow.rs.html#115-127" id="src-2279" title="goto source code">[src]</a></span></h1>
+    <h2 id="methods">Methods</h2>
+    <h3 class="impl" id="dash_impl_1"><span class="in-band"><code>impl&lt;'a, B:&nbsp;?<a class="trait" href="../../core/marker/trait.Sized.html" title=
+    "core::marker::Sized">Sized</a>&gt; <a class="enum" href="enum.Cow.html" title="collections::borrow::Cow">Cow</a>&lt;'a, B&gt; <span class="where">where B:
+    <a class="trait" href="trait.ToOwned.html" title="collections::borrow::ToOwned">ToOwned</a></span></code></span><span class="out-of-band"></span></h3>
+    <div class="ghost">
+      <h3 class="impl" id="dash_impl_1"><a class="srclink" href="../../src/collections/up/src/libcollections/borrow.rs.html#142-194" id="src-2294" title=
+      "goto source code">[src]</a></h3>
+    </div>
+    <div class="impl-items">
+      <span class="out-of-band"><a class="dashAnchor" id="//dash_ref_511/Method/to%5Fmut/0" name="//dash_ref_511/Method/to%5Fmut/0"></a><a id="dash_method_1"
+      name="dash_method_1"></a></span>
+      <h4 class="method" id="method.to_mut" style=
+      ";-webkit-transition-property:background-color;-webkit-transition-duration:0.4s;-webkit-transition-timing-function:ease-in;"><span class=
+      "out-of-band"><span class="invisible" id="to_mut.v"><code>fn <a class="fnname" href="#method.to_mut">to_mut</a>(&amp;mut self) -&gt; &amp;mut
+      B::Owned</code></span><a class="collapse-toggle" href="javascript:void(0)">[<span class="inner">−</span>]</a></span></h4>
+      <h4 class="method" id="method.into_owned"><span class="invisible" id="into_owned.v"><code>fn <a class="fnname" href=
+      "#method.into_owned">into_owned</a>(self) -&gt; B::Owned</code></span><a class="collapse-toggle" href="javascript:void(0)">[<span class=
+      "inner">−</span>]</a></h4>
+    </div>
+  </section>
+</body>
+</html>
+"##;
+
+pub static STRUCT_METHOD_SNIPPET: &'static str = r##"
+<html>
+<body class="rustdoc">
+  <section class="content struct" id="main">
+    <h1 class="fqn"><span class="in-band">Struct <a href="../index.html">core</a>::<wbr><a href="index-2.html">any</a>::<wbr><a class="struct" href=
+    "#">TypeId</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> <span id="render-detail"><a href=
+    "javascript:void(0)" id="toggle-all-docs" title="collapse all docs">[<span class="inner">−</span>]</a></span> <a class="srclink" href=
+    "../../src/core/up/src/libcore/any.rs.html#343-345" id="src-33815" title="goto source code">[src]</a></span></h1>
+    <h2 id="methods">Methods</h2>
+    <h3 class="impl" id="dash_impl_1"><span class="in-band"><code>impl <a class="struct" href="struct.TypeId.html" title=
+    "core::any::TypeId">TypeId</a></code></span><span class="out-of-band"></span></h3>
+    <div class="ghost">
+      <h3 class="impl" id="dash_impl_1"><a class="srclink" href="../../src/core/up/src/libcore/any.rs.html#347-371" id="src-2820" title=
+      "goto source code">[src]</a></h3>
+    </div>
+    <div class="impl-items">
+      <span class="out-of-band"><a class="dashAnchor" id="//dash_ref_4950/Method/of/0" name="//dash_ref_4950/Method/of/0"></a><a id="dash_method_1" name=
+      "dash_method_1"></a></span>
+      <h4 class="method" id="method.of"><span class="out-of-band"><span class="invisible" id="of.v"><code>fn <a class="fnname" href=
+      "#method.of">of</a>&lt;T:&nbsp;?<a class="trait" href="../marker/trait.Sized.html" title="core::marker::Sized">Sized</a> + 'static&gt;() -&gt; <a class=
+      "struct" href="struct.TypeId.html" title="core::any::TypeId">TypeId</a></code></span><a class="collapse-toggle" href="javascript:void(0)">[<span class=
+      "inner">−</span>]</a></span></h4>
+    </div>
+  </section>
+</body>
+</html>
 "##;
 
 // Module/Crate Collections, entry name: collections
@@ -118,7 +205,7 @@ pub static MODULE_SNIPPET: &'static str = r##"
   </section>
 "##;
 
-// Struct collections::str::Bytes,  entry name: Bytes
+// Struct collections::str::Bytes
 pub static STRUCT_SNIPPET: &'static str = r##"
   <section id="main" class="content struct">
     <h1 class="fqn">
@@ -134,7 +221,7 @@ pub static STRUCT_SNIPPET: &'static str = r##"
   </section>
 "##;
 
-// Trait collections::fmt::Binary,  entry name: Binary
+// Trait collections::fmt::Binary
 pub static TRAIT_SNIPPET: &'static str = r##"
   <section id="main" class="content trait">
     <h1 class="fqn">
@@ -154,3 +241,12 @@ pub static TYPE_SNIPPET: &'static str = r##"
     <code>type <a href="../std/ops/trait.Not.html#associatedtype.Output" class="type">Output</a> = <a class="primitive" href="primitive.bool.html">bool</a></code>
   </h4>
 "##;
+
+//// Struct core::ops::Range / Fields, field name: core::ops::Range::start
+//pub static FIELD_SNIPPET:  &'static str = r##"
+//<span id="structfield.start" class="structfield" style=";-webkit-transition-property:background-color;-webkit-transition-duration:0.4s;-webkit-transition-timing-function:ease-in;">
+//    <span id="start.v" class="invisible">
+//        <code>start: Idx</code>
+//    </span>
+//</span>
+//"##;
