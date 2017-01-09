@@ -20,6 +20,8 @@ use std::path::Path;
 
 use rsdocs2docset::dom::{manipulator, parser};
 
+const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+
 type Result = std::result::Result<(), RsDoc2DocsetError>;
 
 quick_error! {
@@ -45,7 +47,7 @@ quick_error! {
 
 fn main() {
     let args = App::new("RsDoc2Docset")
-        .version(include_str!("../VERSION"))
+        .version(VERSION)
         .about("A tool that converts rust docs to Dash docset files")
         .arg(Arg::with_name("indir")
              .short("i")
