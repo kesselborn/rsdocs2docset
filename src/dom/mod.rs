@@ -35,7 +35,10 @@ impl Entry {
                                               N
                                           },
                                           type = entry_type,
-                                          name = percent_encode(entry_name.as_bytes(),
+                                          name = percent_encode(entry_name.rsplit("::")
+                                                                          .nth(0)
+                                                                          .unwrap()
+                                                                          .as_bytes(),
                                                                 QUERY_ENCODE_SET)
                                                      .collect::<String>(),
                                           is_section = if is_section { "1" } else { "0" });
