@@ -48,7 +48,7 @@ deploy:
   # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
   # - Encrypt it. Go to https://ci.appveyor.com/tools/encrypt
   auth_token:
-		secure: ujVgg2s0T/q4SlR2IkBO7CVtR24OLFLGMaXZ4rFXfNWvDI1VMScGDzh0zl9ZYAly
+		secure: 'ujVgg2s0T/q4SlR2IkBO7CVtR24OLFLGMaXZ4rFXfNWvDI1VMScGDzh0zl9ZYAly'
   description: ''
   on:
     RUST_VERSION: stable
