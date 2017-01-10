@@ -45,6 +45,19 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
                                                                  .unwrap_or(String::from("")))),
                                                                      false)),
 
+                    ("span", "variant") => {
+                        let entry_name_type = extract_entry_name(&e, Some("invisible"));
+                        let entry_name = entry_name_type.as_ref()
+                                                        .unwrap()
+                                                        .split('(')
+                                                        .nth(0)
+                                                        .unwrap();
+                        entries.push(Entry::new(e.clone(),
+                                                "Variant",
+                                                Some(format!("{}::{}", context, entry_name)),
+                                                false))
+                    }
+
                     ("span", "structfield") => {
                         let entry_name_type = extract_entry_name(&e, Some("invisible"));
                         let entry_name = entry_name_type.as_ref()
@@ -58,15 +71,14 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
                                                 false))
                     }
 
-                    ("h4", "type") =>
-                        entries.push(Entry::new(e.clone(),
-                                                "Type",
-                                                Some(format!("{}::{}",
+                    ("h4", "type") => entries.push(Entry::new(e.clone(),
+                                                              "Type",
+                                                              Some(format!("{}::{}",
                                                              context,
                                                              extract_entry_name(&e,
                                                                                 Some("type"))
                                                                  .unwrap())),
-                                                false)),
+                                                              false)),
 
                     ("section", "content constant") =>
                         entries.push(Entry::new(e.clone(),

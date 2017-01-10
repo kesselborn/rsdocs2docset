@@ -236,3 +236,20 @@ fn it_extracts_field_entry_correctly() {
         _ => assert!(false),
     }
 }
+
+#[test]
+fn it_extracts_variants_entry_correctly() {
+    let dom = fixtures::dom_from_snippet(fixtures::VARIANT_SNIPPET);
+    let mut entries: Vec<Option<super::Entry>> = Vec::new();
+    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+
+    match entries[1] {
+        Some(ref e) => {
+            assert_eq!(e.entry_type, *"Variant".to_string());
+            assert_eq!(e.is_section, false);
+            assert_eq!(e.entry_name,
+                       *"collections::borrow::Cow::Borrowed".to_string());
+        }
+        _ => assert!(false),
+    }
+}

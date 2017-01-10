@@ -269,9 +269,6 @@ pub static TYPE_SNIPPET: &'static str = r##"
 pub static FIELD_SNIPPET:  &'static str = r##"
 <!DOCTYPE html>
 <html>
-<head>
-  <title></title>
-</head>
 <body class="rustdoc">
   <section class="content struct" id="main">
     <h1 class="fqn">
@@ -290,6 +287,29 @@ pub static FIELD_SNIPPET:  &'static str = r##"
        </span>
      </span>
      <span class="stab"></span>
+  </section>
+</body>
+</html>
+"##;
+
+// collections::borrow::Cow::Borrowed
+pub static VARIANT_SNIPPET: &'static str = r##"
+<html>
+<body class="rustdoc">
+  <section class="content enum" id="main">
+    <h1 class="fqn"><span class="in-band">Enum <a href=
+    "../index.html">collections</a>::<wbr><a href=
+    "index-2.html">borrow</a>::<wbr><a class="enum" href=
+    "#">Cow</a></span><span class="out-of-band"><span class="since" title=
+    "Stable since Rust version 1.0.0">1.0.0</span> <span id=
+    "render-detail"><a href="javascript:void(0)" id="toggle-all-docs" title=
+    "collapse all docs">[<span class="inner">−</span>]</a></span> <a class=
+    "srclink" href=
+    "../../src/collections/up/src/libcollections/borrow.rs.html#115-127" id=
+    "src-2279" title="goto source code">[src]</a></span></h1><span class=
+    "variant" id="variant.Borrowed" style=
+    ";-webkit-transition-property:background-color;-webkit-transition-duration:0.4s;-webkit-transition-timing-function:ease-in;"><span class="invisible"
+    id="Borrowed.v"><code>Borrowed(&amp;'a B)</code></span></span>
   </section>
 </body>
 </html>
