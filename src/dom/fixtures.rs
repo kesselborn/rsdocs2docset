@@ -235,11 +235,34 @@ pub static TRAIT_SNIPPET: &'static str = r##"
   </section>
 "##;
 
-// Type Trait collections::fmt::Binary / Output, entry name: Output
+// Type core::iter::Chain::Item
 pub static TYPE_SNIPPET: &'static str = r##"
-  <h4 id="associatedtype.Output" class="type">
-    <code>type <a href="../std/ops/trait.Not.html#associatedtype.Output" class="type">Output</a> = <a class="primitive" href="primitive.bool.html">bool</a></code>
-  </h4>
+<!DOCTYPE html>
+<html>
+<body class="rustdoc">
+  <section class="content struct" id="main">
+    <h1 class="fqn"><span class="in-band">Struct <a href=
+    "../index.html">core</a>::<wbr><a href=
+    "index-2.html">iter</a>::<wbr><a class="struct" href=
+    "#">Chain</a></span><span class="out-of-band"><span class="since" title=
+    "Stable since Rust version 1.0.0">1.0.0</span> <span id=
+    "render-detail"><a href="javascript:void(0)" id="toggle-all-docs" title=
+    "collapse all docs">[<span class="inner"></span>]</a></span> <a class=
+    "srclink" href="../../src/core/up/src/libcore/iter/mod.rs.html#504-508" id=
+    "src-41701" title="goto source code">[src]</a></span></h1>
+    <div class="impl-items">
+      <a class="dashAnchor" id="//dash_ref_5608/Type/Item/0" name=
+      "//dash_ref_5608/Type/Item/0"></a><a id="dash_method_4" name=
+      "dash_method_4"></a>
+      <h4 class="type" id="associatedtype.Item" style=
+      ";-webkit-transition-property:background-color;-webkit-transition-duration:0.4s;-webkit-transition-timing-function:ease-in;">
+      <span class="invisible" id="Item.t"><code>type <a class="type" href=
+      "trait.Iterator.html#associatedtype.Item">Item</a> =
+      A::Item</code></span></h4>
+    </div>
+  </section>
+</body>
+</html>
 "##;
 
 // Struct core::ops::Range / Fields, field name: core::ops::Range::start
@@ -256,7 +279,7 @@ pub static FIELD_SNIPPET:  &'static str = r##"
 		<span class="out-of-band">
           <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
 		  <span id="render-detail">
-            <a href="javascript:void(0)" id="toggle-all-docs" title="collapse all docs">[<span class="inner">−</span>]</a>
+            <a href="javascript:void(0)" id="toggle-all-docs" title="collapse all docs">[<span class="inner"></span>]</a>
           </span>
           <a class="srclink" href="../../src/core/up/src/libcore/ops.rs.html#2039-2046" id="src-33148" title="goto source code">[src]</a>
         </span>

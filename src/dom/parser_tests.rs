@@ -194,11 +194,10 @@ fn it_extracts_type_entry_correctly() {
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
     parser::walk_tree(&dom.document, String::from(""), &mut entries);
 
-    assert_eq!(entries.len(), 1);
-    match entries[0] {
+    match entries[1] {
         Some(ref e) => {
-            assert_eq!(e.entry_name, *"bool::Output".to_string());
-            assert_eq!(*e.anchor_name.split("/").nth(4).unwrap(), *"Output");
+            assert_eq!(e.entry_name, *"core::iter::Chain::Item".to_string());
+            assert_eq!(*e.anchor_name.split("/").nth(4).unwrap(), *"Item");
             assert_eq!(e.entry_type, *"Type".to_string());
             assert_eq!(e.is_section, false);
         }

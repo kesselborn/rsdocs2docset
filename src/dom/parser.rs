@@ -61,12 +61,11 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
                     ("h4", "type") =>
                         entries.push(Entry::new(e.clone(),
                                                 "Type",
-                                                extract_entry_name(&e, None).and_then(|s| {
-                                                    Some(s.replace("type ", "::")
-                                                          .replace(" = ", "=")
-                                                          .rsplit('=')
-                                                          .collect())
-                                                }),
+                                                Some(format!("{}::{}",
+                                                             context,
+                                                             extract_entry_name(&e,
+                                                                                Some("type"))
+                                                                 .unwrap())),
                                                 false)),
 
                     ("section", "content constant") =>
