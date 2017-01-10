@@ -1,0 +1,12 @@
+#!/bin/bash -e
+dir=$(mktemp -d /tmp/.rsdocs2docset.XXXXXX)
+package=$1
+
+cd ${dir}
+cargo init --name dummy
+echo "${package} = \"*\"" >> Cargo.toml
+cargo generate-lockfile
+export OPENSSL_INCLUDE_DIR=/usr/local/Cellar/openssl/1.0.2j/include
+rustup run nightly cargo doc --no-deps -p ${package}
+rsdocs2docset --rsdoc target/doc --name ${package}
+open ${package}.docset
