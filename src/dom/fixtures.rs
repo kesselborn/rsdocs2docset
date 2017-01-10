@@ -242,11 +242,32 @@ pub static TYPE_SNIPPET: &'static str = r##"
   </h4>
 "##;
 
-//// Struct core::ops::Range / Fields, field name: core::ops::Range::start
-//pub static FIELD_SNIPPET:  &'static str = r##"
-//<span id="structfield.start" class="structfield" style=";-webkit-transition-property:background-color;-webkit-transition-duration:0.4s;-webkit-transition-timing-function:ease-in;">
-//    <span id="start.v" class="invisible">
-//        <code>start: Idx</code>
-//    </span>
-//</span>
-//"##;
+// Struct core::ops::Range / Fields, field name: core::ops::Range::start
+pub static FIELD_SNIPPET:  &'static str = r##"
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+</head>
+<body class="rustdoc">
+  <section class="content struct" id="main">
+    <h1 class="fqn">
+		<span class="in-band">Struct <a href= "../index.html">core</a>::<wbr><a href="index-2.html">ops</a>::<wbr><a class="struct" href="#">Range</a></span>
+		<span class="out-of-band">
+          <span class="since" title="Stable since Rust version 1.0.0">1.0.0</span>
+		  <span id="render-detail">
+            <a href="javascript:void(0)" id="toggle-all-docs" title="collapse all docs">[<span class="inner">−</span>]</a>
+          </span>
+          <a class="srclink" href="../../src/core/up/src/libcore/ops.rs.html#2039-2046" id="src-33148" title="goto source code">[src]</a>
+        </span>
+     </h1>
+     <span class="structfield" id="structfield.start">
+       <span class="invisible" id="start.v">
+         <code>start: Idx</code>
+       </span>
+     </span>
+     <span class="stab"></span>
+  </section>
+</body>
+</html>
+"##;

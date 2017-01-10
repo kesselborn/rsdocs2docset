@@ -45,6 +45,19 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
                                                                  .unwrap_or(String::from("")))),
                                                                      false)),
 
+                    ("span", "structfield") => {
+                        let entry_name_type = extract_entry_name(&e, Some("invisible"));
+                        let entry_name = entry_name_type.as_ref()
+                                                        .unwrap()
+                                                        .split(':')
+                                                        .nth(0)
+                                                        .unwrap();
+                        entries.push(Entry::new(e.clone(),
+                                                "Field",
+                                                Some(format!("{}::{}", context, entry_name)),
+                                                false))
+                    }
+
                     ("h4", "type") =>
                         entries.push(Entry::new(e.clone(),
                                                 "Type",
