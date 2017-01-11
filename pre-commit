@@ -1,3 +1,3 @@
 #!/bin/bash -xe
 test "$(grep --max-count 1 version Cargo.toml)" = "$(grep --max-count 1 version Cargo.lock)"
-rustup run nightly cargo clippy
+rustup run nightly cargo clippy -- -W filter_map -W indexing_slicing -W if_not_else -W items_after_statements -W mut_mut -W non_ascii_literal -W nonminimal_bool -W option_map_unwrap_or -W option_map_unwrap_or_else -W option_unwrap_used -W pub_enum_variant_names -W result_unwrap_used -W shadow_reuse -W shadow_same -W shadow_unrelated -W similar_names -W single_match_else -W string_add -W string_add_assign -W stutter -W unicode_not_nfc -W unseparated_literal_suffix -W use_debug -W used_underscore_binding -W wrong_pub_self_convention

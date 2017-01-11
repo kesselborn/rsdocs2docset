@@ -87,7 +87,7 @@ fn create_docset(indir: &str, name: &str) -> Result {
 
 // recursivly creates the parent dir of `path`
 fn mkdir_parent_p(path: &Path) -> Result {
-    let dir = path.parent().unwrap();
+    let dir = path.parent().expect(format!("can't create parent dir of {}", path.to_str().unwrap()).as_str());
 
     try!(DirBuilder::new()
          .recursive(true)
@@ -122,12 +122,7 @@ fn docset_from_rs_doc_tree(source_dir: &Path, out_dir: &str, db_path: &Path) -> 
 fn annotate_file(in_file: &DirEntry, output_prefix: &str, db_path: &Path) -> Result {
     let out_file = Path::new(output_prefix).join(in_file.path());
 
-    if in_file.path().extension() != Some(OsStr::new("html")) {
-        try!(mkdir_parent_p(&out_file));
-        try!(fs::copy(in_file.path(), &out_file));
-        //println!("{:70} | ", in_file.path().display());
-        print!("."); io::stdout().flush().unwrap();
-    } else {
+    if in_file.path().extension() == Some(OsStr::new("html")) {
         let mut dom = parse_document(RcDom::default(), ParseOpts::default())
             .from_utf8()
             .read_from( &mut File::open(&in_file.path())? )?;
@@ -145,7 +140,12 @@ fn annotate_file(in_file: &DirEntry, output_prefix: &str, db_path: &Path) -> Res
         try!(serialize(&mut bytes, &dom.document, SerializeOpts::default()));
         try!(write_file(&out_file, bytes.as_ref()));
 
-        print!("o"); io::stdout().flush().unwrap();
+        print!("o"); io::stdout().flush().expect("error flushing stdout?!");
+    } else {
+        try!(mkdir_parent_p(&out_file));
+        try!(fs::copy(in_file.path(), &out_file));
+        //println!("{:70} | ", in_file.path().display());
+        print!("."); io::stdout().flush().expect("error flushing stdout?!");
     }
 
     Ok(())
