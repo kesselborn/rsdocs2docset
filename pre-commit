@@ -1,2 +1,3 @@
 #!/bin/bash -xe
 test "$(grep --max-count 1 version Cargo.toml)" = "$(grep --max-count 1 version Cargo.lock)"
+rustup run nightly cargo clippy

@@ -133,7 +133,7 @@ fn annotate_file(in_file: &DirEntry, output_prefix: &str, db_path: &Path) -> Res
             .read_from( &mut File::open(&in_file.path())? )?;
 
         let entries = parser::find_entry_elements(&mut dom);
-        for entry in entries.iter().filter_map(|x| x.as_ref()).filter(|x| x.is_section == false) {
+        for entry in entries.iter().filter_map(|x| x.as_ref()).filter(|x| !x.is_section) {
             //println!("{:70} | {}", in_file.path().display(), entry);
 
             let sql_cmd = format!("INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES (\"{}\", \"{}\", \"{}#{}\");", entry.entry_name, entry.entry_type, in_file.path().to_str().unwrap(), entry.anchor_name);

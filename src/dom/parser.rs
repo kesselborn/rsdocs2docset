@@ -13,18 +13,18 @@ pub fn find_entry_elements(dom: &mut RcDom) -> Vec<Option<Entry>> {
 pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) {
     let mut current_context: Option<String> = None;
 
-    for e in h.borrow().children.iter() {
+    for e in &h.borrow().children {
         if let Element(ref name, _, ref attrs) = e.borrow().node {
             let tag = &(*name.local.to_ascii_lowercase());
             if let Some(class_attr) = attrs.iter()
-                                           .find(|ref x| x.name == qualname!("", "class"))
+                                           .find(|x| x.name == qualname!("", "class"))
                                            .and_then(|c| Some(c.clone().value.to_string())) {
 
                 match (tag, class_attr.as_str()) {
                     ("h3", "impl") =>
                         entries.push(Entry::new(e.clone(),
                                                 "Method",
-                                                extract_entry_name(&e, Some("in-band")),
+                                                extract_entry_name(e, Some("in-band")),
                                                 true)),
 
                     ("h4", "method") => entries.push(Entry::new(e.clone(),
@@ -46,7 +46,7 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
                                                                      false)),
 
                     ("span", "variant") => {
-                        let entry_name_type = extract_entry_name(&e, Some("invisible"));
+                        let entry_name_type = extract_entry_name(e, Some("invisible"));
                         let entry_name = entry_name_type.as_ref()
                                                         .unwrap()
                                                         .split('(')
@@ -59,7 +59,7 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
                     }
 
                     ("span", "structfield") => {
-                        let entry_name_type = extract_entry_name(&e, Some("invisible"));
+                        let entry_name_type = extract_entry_name(e, Some("invisible"));
                         let entry_name = entry_name_type.as_ref()
                                                         .unwrap()
                                                         .split(':')
@@ -83,11 +83,11 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
                     ("section", "content constant") =>
                         entries.push(Entry::new(e.clone(),
                                                 "Constant",
-                                                extract_entry_name(&e, Some("in-band")),
+                                                extract_entry_name(e, Some("in-band")),
                                                 false)),
 
                     ("section", "content enum") => {
-                        current_context = extract_entry_name(&e, Some("in-band"))
+                        current_context = extract_entry_name(e, Some("in-band"))
                                               .and_then(|s| Some(s.replace("Enum ", "")));
                         entries.push(Entry::new(e.clone(), "Enum", current_context.clone(), false))
                     }
@@ -95,7 +95,7 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
                     ("section", "content fn") =>
                         entries.push(Entry::new(e.clone(),
                                                 "Function",
-                                                extract_entry_name(&e, Some("in-band"))
+                                                extract_entry_name(e, Some("in-band"))
                                                     .and_then(|s| {
                                                         Some(s.replace("Function ", ""))
                                                     }),
@@ -104,18 +104,18 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
                     ("section", "content macro") =>
                         entries.push(Entry::new(e.clone(),
                                                 "Macro",
-                                                extract_entry_name(&e, Some("in-band")),
+                                                extract_entry_name(e, Some("in-band")),
                                                 false)),
 
                     ("section", "content mod") =>
                         entries.push(Entry::new(e.clone(),
                                                 "Module",
-                                                extract_entry_name(&e, Some("in-band"))
+                                                extract_entry_name(e, Some("in-band"))
                                                     .and_then(|s| Some(s.replace("Crate ", ""))),
                                                 false)),
 
                     ("section", "content struct") => {
-                        current_context = extract_entry_name(&e, Some("in-band"))
+                        current_context = extract_entry_name(e, Some("in-band"))
                                               .and_then(|s| Some(s.replace("Struct ", "")));
                         entries.push(Entry::new(e.clone(),
                                                 "Struct",
@@ -124,7 +124,7 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
                     }
 
                     ("section", "content trait") => {
-                        current_context = extract_entry_name(&e, Some("in-band"))
+                        current_context = extract_entry_name(e, Some("in-band"))
                                               .and_then(|s| Some(s.replace("Trait ", "")));
                         entries.push(Entry::new(e.clone(), "Trait", current_context.clone(), false))
                     }
@@ -148,10 +148,10 @@ fn find_element_with_class(h: &Handle, class_value: Option<&str>) -> Option<Hand
         return Some(h.clone());
     }
 
-    for e in h.borrow().children.iter() {
+    for e in &h.borrow().children {
         if let Element(_, _, ref attrs) = e.borrow().node {
             if attrs.iter()
-                    .find(|ref attr| attr.name == qualname!("", "class"))
+                    .find(|attr| attr.name == qualname!("", "class"))
                     .and_then(|attr| Some(attr.value.to_string() == class_value.unwrap()))
                     .unwrap_or(false) {
                 return Some(e.clone());
@@ -171,7 +171,7 @@ fn get_text(h: &Handle) -> Option<String> {
     let node = h.borrow();
 
     // get all text from current and all descendent elements: <span>hallo <a href="http://heise.de">heise</a>!</span> -> hallo heise !
-    for e in node.children.iter() {
+    for e in &node.children {
         match e.borrow().node {
             Text(ref t) => text_tokens.push(t.to_string()),
 
@@ -183,7 +183,7 @@ fn get_text(h: &Handle) -> Option<String> {
     }
 
     // adjust extracted text: mainly remove white space and some unicode characters
-    if text_tokens.len() > 0 {
+    if !text_tokens.is_empty() {
         Some(String::from(text_tokens.join(" ").trim())
                  .replace("\u{a0}", "")
                  .replace(" >", ">")

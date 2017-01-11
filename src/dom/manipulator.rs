@@ -3,7 +3,7 @@ use html5ever::rcdom::RcDom;
 use html5ever::tree_builder::{NodeOrText, TreeSink};
 use super::Entry;
 
-pub fn add_dash_links(mut dom: &mut RcDom, entries: &Vec<Option<Entry>>) {
+pub fn add_dash_links(mut dom: &mut RcDom, entries: &[Option<Entry>]) {
     let class_attr = html5ever::Attribute {
         name: qualname!("", "class"),
         value: format_tendril!("dashAnchor"),
