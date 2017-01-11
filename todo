@@ -1,7 +1,9 @@
-- lint with clippy
+- make start page configurable
 
 ############# done
 - add fields
 - types still need to be prefixed
 - dash links sollten kurzen namen haben
 - add variant
+- lint with clippy
+- set start page

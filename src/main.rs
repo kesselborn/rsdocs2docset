@@ -73,7 +73,7 @@ fn create_docset(indir: &str, name: &str) -> Result {
     let db_filename = format!("{}.docset/Contents/Resources/docSet.dsidx", name);
     let db_path = Path::new(&db_filename);
 
-    try!(write_file(Path::new(format!("{}.docset/Contents/Info.plist", name).as_str()), format!(include_str!("Info.plist.tmpl"), name = name, identifier = name.replace(" ", "-").to_lowercase()).as_ref()));
+    try!(write_file(Path::new(format!("{}.docset/Contents/Info.plist", name).as_str()), format!(include_str!("Info.plist.tmpl"), name = name, identifier = name.replace(" ", "_").replace("-", "_").to_lowercase()).as_ref()));
     try!(write_file(Path::new(format!("{}.docset/icon.png", name).as_str()), include_bytes!("icon.png")));
     try!(write_file(Path::new(format!("{}.docset/icon@2x.png", name).as_str()), include_bytes!("icon@2x.png")));
 
