@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/kesselborn/rsdocs2docset.svg?branch=master)](https://travis-ci.org/kesselborn/rsdocs2docset)
+[![Build Status](https://travis-ci.org/kesselborn/rsdocs2docset.svg?branch=master)](https://travis-ci.org/kesselborn/rsdocs2docset) [![Build status](https://ci.appveyor.com/api/projects/status/a33lro8pqv3p2t2x?svg=true)](https://ci.appveyor.com/project/kesselborn/rsdocs2docset)
+
 # rsdocs2docset
 
 This is a small tool to generate a docsets for [Dash](https://kapeli.com/dash) / [Velocity](http://velocity.silverlakesoftware.com) / [Zeal](https://zealdocs.org) / [LovelyDocs](https://zealdocs.org) out of Rust docs.
