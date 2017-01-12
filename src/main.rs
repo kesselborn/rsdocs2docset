@@ -6,13 +6,11 @@ extern crate rsdocs2docset;
 extern crate sqlite;
 extern crate url;
 
-use clap::{Arg, App};
-
+use clap::Shell;
 use html5ever::driver::{ParseOpts, parse_document};
 use html5ever::rcdom::RcDom;
 use html5ever::serialize::{SerializeOpts, serialize};
 use html5ever::tendril::TendrilSink;
-
 use std::ffi::OsStr;
 use std::fs::{self, DirBuilder, DirEntry, File};
 use std::io::{self,Write};
@@ -20,7 +18,7 @@ use std::path::Path;
 
 use rsdocs2docset::dom::{manipulator, parser};
 
-const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+mod cli;
 
 type Result = std::result::Result<(), RsDoc2DocsetError>;
 
@@ -46,24 +44,19 @@ quick_error! {
 }
 
 fn main() {
-    let args = App::new("RsDoc2Docset")
-        .version(VERSION)
-        .about("A tool that converts rust docs to Dash docset files")
-        .arg(Arg::with_name("indir")
-             .short("i")
-             .long("rsdoc")
-             .value_name("INDIR")
-             .help("directory that contains rustdoc files")
-             .required(true)
-             .takes_value(true))
-        .arg(Arg::with_name("name")
-             .short("n")
-             .long("name")
-             .value_name("NAME")
-             .help("name of the docset")
-             .required(true)
-             .takes_value(true))
-        .get_matches();
+    let mut app = cli::build_cli();
+    let args = app.clone().get_matches();
+    
+    if args.is_present("bash-completion-code") {
+        cli::build_cli().gen_completions_to(env!("CARGO_PKG_NAME"), Shell::Bash, &mut io::stdout());
+        return
+    }
+
+    if !args.is_present("indir") || !args.is_present("name") {
+        app.print_help();
+        println!();
+        std::process::exit(1);
+    }
 
     create_docset(args.value_of("indir").unwrap(), args.value_of("name").unwrap()).expect("error creating docset");
     println!("\n{}.docset successfully created!", args.value_of("name").unwrap())
@@ -102,22 +95,22 @@ fn write_file(path: &Path, data: &[u8]) -> Result {
 }
 
 fn docset_from_rs_doc_tree(source_dir: &Path, out_dir: &str, db_path: &Path) -> Result {
-        if !source_dir.exists() {
-            return Err(io::Error::new(io::ErrorKind::NotFound, format!("{} does not exist", source_dir.to_str().unwrap())).into());
-        }
+    if !source_dir.exists() {
+        return Err(io::Error::new(io::ErrorKind::NotFound, format!("{} does not exist", source_dir.to_str().unwrap())).into());
+    }
 
-        if source_dir.is_dir() {
-            for entry in fs::read_dir(source_dir)? {
-                let entry = entry?;
-                if entry.path().is_dir() {
-                    try!(docset_from_rs_doc_tree(&entry.path(), &out_dir, &db_path));
-                } else {
-                    try!(annotate_file(&entry, &out_dir, &db_path));
-                }
+    if source_dir.is_dir() {
+        for entry in fs::read_dir(source_dir)? {
+            let entry = entry?;
+            if entry.path().is_dir() {
+                try!(docset_from_rs_doc_tree(&entry.path(), &out_dir, &db_path));
+            } else {
+                try!(annotate_file(&entry, &out_dir, &db_path));
             }
         }
-        Ok(())
     }
+    Ok(())
+}
 
 fn annotate_file(in_file: &DirEntry, output_prefix: &str, db_path: &Path) -> Result {
     let out_file = Path::new(output_prefix).join(in_file.path());
