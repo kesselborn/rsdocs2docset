@@ -2,7 +2,7 @@ use clap::{App, Arg};
 
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
-pub fn build_cli() -> App<'static, 'static> {
+pub fn build() -> App<'static, 'static> {
     App::new("RsDoc2Docset")
         .version(VERSION)
         .about("A tool that converts rust docs to Dash docset files")

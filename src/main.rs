@@ -44,7 +44,7 @@ quick_error! {
 }
 
 fn main() {
-    let mut app = cli::build_cli();
+    let mut app = cli::build();
     let args = app.clone().get_matches();
     
     if args.is_present("bash-completion-code") {
