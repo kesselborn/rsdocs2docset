@@ -46,20 +46,23 @@ quick_error! {
 fn main() {
     let mut app = cli::build();
     let args = app.clone().get_matches();
-    
+
     if args.is_present("bash-completion-code") {
-        cli::build_cli().gen_completions_to(env!("CARGO_PKG_NAME"), Shell::Bash, &mut io::stdout());
+        app.gen_completions_to(env!("CARGO_PKG_NAME"), Shell::Bash, &mut io::stdout());
         return
     }
 
-    if !args.is_present("indir") || !args.is_present("name") {
-        app.print_help();
-        println!();
-        std::process::exit(1);
+    match (args.value_of("indir"), args.value_of("name")) {
+        (Some(indir), Some(name)) => {
+            create_docset(indir, name).expect("error creating docset");
+            println!("\n{}.docset successfully created!", name)
+        }
+        (_, _) => {
+            let _ = app.print_help();
+            println!();
+            std::process::exit(1);
+        }
     }
-
-    create_docset(args.value_of("indir").unwrap(), args.value_of("name").unwrap()).expect("error creating docset");
-    println!("\n{}.docset successfully created!", args.value_of("name").unwrap())
 }
 
 fn create_docset(indir: &str, name: &str) -> Result {
