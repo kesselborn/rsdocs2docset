@@ -10,7 +10,7 @@ do
   test -e Cargo.toml || cargo init --name dummy
   grep "^${package} = \"*\"" Cargo.toml || echo "${package} = \"*\"" >> Cargo.toml
   cargo generate-lockfile
-  export OPENSSL_INCLUDE_DIR=/usr/local/Cellar/openssl/1.0.2j/include
+  export OPENSSL_INCLUDE_DIR=$(ls -td /usr/local/Cellar/openssl/*/include|head -n1)
   rm -rf target/doc
   rustup run nightly cargo doc --no-deps -p ${package}
   rm -rf ${package}.docset
