@@ -21,73 +21,75 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
                                            .and_then(|c| Some(c.clone().value.to_string())) {
 
                 match (tag, class_attr.as_str()) {
-                    ("h3", "impl") =>
-                        entries.push(Entry::new(e.clone(),
-                                                "Method",
-                                                extract_entry_name(e, Some("in-band")),
-                                                true)),
+                    ("h3", "impl") => entries.push(Entry::new(e.clone(),
+                                                              "Method",
+                                                              extract_entry_name(e, "in-band"),
+                                                              true)),
 
-                    ("h4", "method") => entries.push(Entry::new(e.clone(),
-                                                                "Method",
-                                                                Some(format!("{}::{}",
-																			 context,
-                                                             extract_entry_name(&e,
-                                                                                Some("fnname"))
-                                                                 .unwrap_or(String::from("")))),
-                                                                false)),
+                    ("h4", "method") => {
+                        if let Some(entry_name) = extract_entry_name(e, "fnname") {
+                            entries.push(Entry::new(e.clone(),
+                                                    "Method",
+                                                    Some(format!("{}::{}", context, entry_name)),
+                                                    false))
+                        }
+                    }
 
-                    ("h3", "method stab") => entries.push(Entry::new(e.clone(),
-                                                                     "Method",
-                                                                     Some(format!("{}::{}",
-																			 context,
-                                                             extract_entry_name(&e,
-                                                                                Some("fnname"))
-                                                                 .unwrap_or(String::from("")))),
-                                                                     false)),
+                    ("h3", "method stab") => {
+                        if let Some(entry_name) = extract_entry_name(e, "fnname") {
+                            entries.push(Entry::new(e.clone(),
+                                                    "Method",
+                                                    Some(format!("{}::{}", context, entry_name)),
+                                                    false))
+                        }
+                    }
 
                     ("span", "variant") => {
-                        let entry_name_type = extract_entry_name(e, Some("invisible"));
-                        let entry_name = entry_name_type.as_ref()
-                                                        .unwrap()
-                                                        .split('(')
-                                                        .nth(0)
-                                                        .unwrap();
-                        entries.push(Entry::new(e.clone(),
-                                                "Variant",
-                                                Some(format!("{}::{}", context, entry_name)),
-                                                false))
+                        if let Some(entry_name_with_parenthesis) = extract_entry_name(e,
+                                                                                      "invisible") {
+                            let entry_name = entry_name_with_parenthesis
+                                .split('(')
+                                .nth(0)
+                                .expect("split did not have any elements?");
+
+                            entries.push(Entry::new(e.clone(),
+                                                    "Variant",
+                                                    Some(format!("{}::{}", context, entry_name)),
+                                                    false))
+                        }
                     }
 
                     ("span", "structfield") => {
-                        let entry_name_type = extract_entry_name(e, Some("invisible"));
-                        let entry_name = entry_name_type.as_ref()
-                                                        .unwrap()
-                                                        .split(':')
-                                                        .nth(0)
-                                                        .unwrap();
-                        entries.push(Entry::new(e.clone(),
-                                                "Field",
-                                                Some(format!("{}::{}", context, entry_name)),
-                                                false))
+                        if let Some(field_and_type) = extract_entry_name(e, "invisible") {
+                            let entry_name =
+                                field_and_type.split(':')
+                                              .nth(0)
+                                              .expect("split did not have any elements?");
+
+                            entries.push(Entry::new(e.clone(),
+                                                    "Field",
+                                                    Some(format!("{}::{}", context, entry_name)),
+                                                    false))
+                        }
                     }
 
-                    ("h4", "type") => entries.push(Entry::new(e.clone(),
-                                                              "Type",
-                                                              Some(format!("{}::{}",
-                                                             context,
-                                                             extract_entry_name(&e,
-                                                                                Some("type"))
-                                                                 .unwrap())),
-                                                              false)),
+                    ("h4", "type") => {
+                        if let Some(entry_name) = extract_entry_name(e, "type") {
+                            entries.push(Entry::new(e.clone(),
+                                                    "Type",
+                                                    Some(format!("{}::{}", context, entry_name)),
+                                                    false))
+                        }
+                    }
 
                     ("section", "content constant") =>
                         entries.push(Entry::new(e.clone(),
                                                 "Constant",
-                                                extract_entry_name(e, Some("in-band")),
+                                                extract_entry_name(e, "in-band"),
                                                 false)),
 
                     ("section", "content enum") => {
-                        current_context = extract_entry_name(e, Some("in-band"))
+                        current_context = extract_entry_name(e, "in-band")
                                               .and_then(|s| Some(s.replace("Enum ", "")));
                         entries.push(Entry::new(e.clone(), "Enum", current_context.clone(), false))
                     }
@@ -95,27 +97,26 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
                     ("section", "content fn") =>
                         entries.push(Entry::new(e.clone(),
                                                 "Function",
-                                                extract_entry_name(e, Some("in-band"))
-                                                    .and_then(|s| {
-                                                        Some(s.replace("Function ", ""))
-                                                    }),
+                                                extract_entry_name(e, "in-band").and_then(|s| {
+                                                    Some(s.replace("Function ", ""))
+                                                }),
                                                 false)),
 
                     ("section", "content macro") =>
                         entries.push(Entry::new(e.clone(),
                                                 "Macro",
-                                                extract_entry_name(e, Some("in-band")),
+                                                extract_entry_name(e, "in-band"),
                                                 false)),
 
                     ("section", "content mod") =>
                         entries.push(Entry::new(e.clone(),
                                                 "Module",
-                                                extract_entry_name(e, Some("in-band"))
+                                                extract_entry_name(e, "in-band")
                                                     .and_then(|s| Some(s.replace("Crate ", ""))),
                                                 false)),
 
                     ("section", "content struct") => {
-                        current_context = extract_entry_name(e, Some("in-band"))
+                        current_context = extract_entry_name(e, "in-band")
                                               .and_then(|s| Some(s.replace("Struct ", "")));
                         entries.push(Entry::new(e.clone(),
                                                 "Struct",
@@ -124,7 +125,7 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
                     }
 
                     ("section", "content trait") => {
-                        current_context = extract_entry_name(e, Some("in-band"))
+                        current_context = extract_entry_name(e, "in-band")
                                               .and_then(|s| Some(s.replace("Trait ", "")));
                         entries.push(Entry::new(e.clone(), "Trait", current_context.clone(), false))
                     }
@@ -133,26 +134,23 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
                 }
             }
         }
+
         walk_tree(e,
                   current_context.clone().unwrap_or(context.clone()),
                   entries);
     }
 }
 
-pub fn extract_entry_name(e: &Handle, element_class: Option<&str>) -> Option<String> {
+pub fn extract_entry_name(e: &Handle, element_class: &str) -> Option<String> {
     find_element_with_class(e, element_class).and_then(|x| get_text(&x))
 }
 
-fn find_element_with_class(h: &Handle, class_value: Option<&str>) -> Option<Handle> {
-    if class_value.is_none() {
-        return Some(h.clone());
-    }
-
+fn find_element_with_class(h: &Handle, class_value: &str) -> Option<Handle> {
     for e in &h.borrow().children {
         if let Element(_, _, ref attrs) = e.borrow().node {
             if attrs.iter()
                     .find(|attr| attr.name == qualname!("", "class"))
-                    .and_then(|attr| Some(attr.value.to_string() == class_value.unwrap()))
+                    .and_then(|attr| Some(attr.value.to_string() == class_value))
                     .unwrap_or(false) {
                 return Some(e.clone());
             }
