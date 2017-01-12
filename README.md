@@ -9,6 +9,7 @@ Simply call
 
     cargo install rsdocs2docset
 
+or download the latest version from the [release page](https://github.com/kesselborn/rsdocs2docset/releases)
 or clone this repo, make sure you have rust installed and execute
 
     cargo install
