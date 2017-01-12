@@ -183,7 +183,9 @@ fn get_text(h: &Handle) -> Option<String> {
     }
 
     // adjust extracted text: mainly remove white space and some unicode characters
-    if !text_tokens.is_empty() {
+    if text_tokens.is_empty() {
+        None
+    } else {
         Some(String::from(text_tokens.join(" ").trim())
                  .replace("\u{a0}", "")
                  .replace(" >", ">")
@@ -191,7 +193,5 @@ fn get_text(h: &Handle) -> Option<String> {
                  .replace(" ::", "::")
                  .replace(":: ", "::")
                  .replace("  ", " "))
-    } else {
-        None
     }
 }
