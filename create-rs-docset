@@ -1,5 +1,5 @@
 #!/bin/bash -e
-dir=~/.rs-doscsets
+dir=~/.rs-docsets
 mkdir -p ${dir}
 
 while [ $# -gt 0 ]
