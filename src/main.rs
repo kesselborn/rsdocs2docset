@@ -81,19 +81,17 @@ fn create_docset(indir: &str, name: &str) -> Result {
     Ok(())
 }
 
+fn write_file(path: &Path, data: &[u8]) -> Result {
+    try!(mkdir_parent_p(path));
+    try!(File::create(path).and_then(|mut f| f.write_all(data)));
+    Ok(())
+}
+
 // recursivly creates the parent dir of `path`
 fn mkdir_parent_p(path: &Path) -> Result {
     let dir = path.parent().expect(format!("can't create parent dir of {}", path.to_str().unwrap()).as_str());
 
-    try!(DirBuilder::new()
-         .recursive(true)
-         .create(dir));
-    Ok(())
-}
-
-fn write_file(path: &Path, data: &[u8]) -> Result {
-    try!(mkdir_parent_p(path));
-    try!(File::create(path).and_then(|mut f| f.write_all(data)));
+    try!(DirBuilder::new().recursive(true).create(dir));
     Ok(())
 }
 
@@ -103,19 +101,18 @@ fn docset_from_rs_doc_tree(source_dir: &Path, out_dir: &str, db_path: &Path) -> 
     }
 
     if source_dir.is_dir() {
-        for entry in fs::read_dir(source_dir)? {
-            let entry = entry?;
+        for entry in fs::read_dir(source_dir)?.filter_map(|e| e.ok()) {
             if entry.path().is_dir() {
                 try!(docset_from_rs_doc_tree(&entry.path(), &out_dir, &db_path));
             } else {
-                try!(annotate_file(&entry, &out_dir, &db_path));
+                try!(add_file_to_docset(&entry, &out_dir, &db_path));
             }
         }
     }
     Ok(())
 }
 
-fn annotate_file(in_file: &DirEntry, output_prefix: &str, db_path: &Path) -> Result {
+fn add_file_to_docset(in_file: &DirEntry, output_prefix: &str, db_path: &Path) -> Result {
     let out_file = Path::new(output_prefix).join(in_file.path());
 
     if in_file.path().extension() == Some(OsStr::new("html")) {
