@@ -67,8 +67,8 @@ fn it_extracts_macro_entry_correctly() {
     assert_eq!(entries.len(), 1);
     match entries[0] {
         Some(ref e) => {
-            assert_eq!(e.entry_name, *"std::println!".to_string());
-            assert_eq!(*e.anchor_name.split("/").nth(4).unwrap(), *"println!");
+            assert_eq!(e.entry_name, *"std::println".to_string());
+            assert_eq!(*e.anchor_name.split("/").nth(4).unwrap(), *"println");
             assert_eq!(e.entry_type, *"Macro".to_string());
             assert_eq!(e.is_section, false);
         }
@@ -83,6 +83,7 @@ fn it_extracts_trait_method_entry_correctly() {
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
     parser::walk_tree(&dom.document, String::from(""), &mut entries);
 
+    assert_eq!(entries.len(), 2);
     match entries[1] {
         Some(ref e) => {
             assert_eq!(e.entry_name,
@@ -102,7 +103,8 @@ fn it_extracts_enum_method_entry_correctly() {
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
     parser::walk_tree(&dom.document, String::from(""), &mut entries);
 
-    match entries[3] {
+    assert_eq!(entries.len(), 2);
+    match entries[1] {
         Some(ref e) => {
             assert_eq!(e.entry_name,
                        *"collections::borrow::Cow::to_mut".to_string());
@@ -121,8 +123,8 @@ fn it_extracts_struct_method_entry_correctly() {
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
     parser::walk_tree(&dom.document, String::from(""), &mut entries);
 
-    assert_eq!(entries.len(), 4);
-    match entries[3] {
+    assert_eq!(entries.len(), 2);
+    match entries[1] {
         Some(ref e) => {
             assert_eq!(e.entry_name, *"core::any::TypeId::of".to_string());
             assert_eq!(*e.anchor_name.split("/").nth(4).unwrap(), *"of");
@@ -161,7 +163,7 @@ fn it_extracts_struct_entry_correctly() {
     assert_eq!(entries.len(), 1);
     match entries[0] {
         Some(ref e) => {
-            assert_eq!(e.entry_name, *"std::io::Bytes".to_string());
+            assert_eq!(e.entry_name, *"collections::str::Bytes".to_string());
             assert_eq!(*e.anchor_name.split("/").nth(4).unwrap(), *"Bytes");
             assert_eq!(e.entry_type, *"Struct".to_string());
             assert_eq!(e.is_section, false);
