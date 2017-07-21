@@ -37,7 +37,7 @@ impl Entry {
                                           type = entry_type,
                                           name = percent_encode(entry_name.rsplit("::")
                                                                           .nth(0)
-                                                                          .unwrap()
+                                                                          .expect("split on array did not produce an element")
                                                                           .as_bytes(),
                                                                 QUERY_ENCODE_SET)
                                                      .collect::<String>(),

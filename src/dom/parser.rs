@@ -5,12 +5,12 @@ use super::Entry;
 
 pub fn find_entry_elements(dom: &mut RcDom) -> Vec<Option<Entry>> {
     let mut entries = vec![];
-    walk_tree(&dom.document, String::from(""), &mut entries);
+    walk_tree(&dom.document, "", &mut entries);
     entries
 }
 
 
-pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) {
+pub fn walk_tree(h: &Handle, context: &str, entries: &mut Vec<Option<Entry>>) {
     let mut current_context: Option<String> = None;
 
     for e in &h.borrow().children {
@@ -118,7 +118,9 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
         }
 
         walk_tree(e,
-                  current_context.clone().unwrap_or_else(|| context.clone()),
+                  current_context.clone()
+                      .unwrap_or_else(|| context.to_string())
+                      .as_ref(),
                   entries);
     }
 }

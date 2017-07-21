@@ -100,7 +100,9 @@ fn write_file(path: &Path, data: &[u8]) -> Result {
 // recursivly creates the parent dir of `path`
 fn mkdir_parent_p(path: &Path) -> Result {
     let dir = path.parent()
-        .expect(format!("can't create parent dir of {}", path.to_str().unwrap()).as_str());
+        .expect(format!("can't create parent dir of {}",
+                        path.to_str().expect("can't stringify path"))
+            .as_str());
 
     try!(DirBuilder::new().recursive(true).create(dir));
     Ok(())
@@ -109,7 +111,9 @@ fn mkdir_parent_p(path: &Path) -> Result {
 fn docset_from_rs_doc_tree(source_dir: &Path, out_dir: &str, db_path: &Path) -> Result {
     if !source_dir.exists() {
         return Err(io::Error::new(io::ErrorKind::NotFound,
-                                  format!("{} does not exist", source_dir.to_str().unwrap()))
+                                  format!("{} does not exist",
+                                          source_dir.to_str()
+                                              .expect("can't stringify source_dir path")))
             .into());
     }
 
@@ -139,7 +143,7 @@ fn add_file_to_docset(in_file: &DirEntry, output_prefix: &str, db_path: &Path) -
             let sql_cmd = format!("INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES (\"{}\", \"{}\", \"{}#{}\");",
                                   entry.entry_name,
                                   entry.entry_type,
-                                  in_file.path().to_str().unwrap(),
+                                  in_file.path().to_str().expect("can't stringify in_file path"),
                                   entry.anchor_name);
             try!(sqlite::open(db_path).and_then(|c| c.execute(&sql_cmd)))
         }

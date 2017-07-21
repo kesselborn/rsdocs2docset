@@ -1,6 +1,6 @@
 use html5ever::rcdom::NodeEnum::Element;
-use html5ever::serialize::{SerializeOpts, serialize};
 use html5ever::rcdom::RcDom;
+use html5ever::serialize::{SerializeOpts, serialize};
 
 use super::{fixtures, manipulator, parser};
 
@@ -15,12 +15,8 @@ fn first_element_is_dash_anchor(dom: &RcDom) -> bool {
                 for body_child in e.borrow().children.iter() {
                     if let Element(_, _, ref attrs) = body_child.borrow().node {
                         if let Some(class_attr) = attrs.iter()
-                                                       .find(|ref x| {
-                                                           x.name == qualname!("", "class")
-                                                       })
-                                                       .and_then(|c| {
-                                                           Some(c.clone().value.to_string())
-                                                       }) {
+                            .find(|ref x| x.name == qualname!("", "class"))
+                            .and_then(|c| Some(c.clone().value.to_string())) {
                             if class_attr == "dashAnchor" {
                                 return true;
                             }
@@ -43,7 +39,7 @@ fn first_element_is_dash_anchor(dom: &RcDom) -> bool {
 fn it_inserts_dash_anchor_before_const_entry() {
     let mut dom = fixtures::dom_from_snippet(fixtures::CONST_SNIPPET);
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
     manipulator::add_dash_links(&mut dom, &entries);
 
     assert!(first_element_is_dash_anchor(&dom));
@@ -53,7 +49,7 @@ fn it_inserts_dash_anchor_before_const_entry() {
 fn it_inserts_dash_anchor_before_enum_entry() {
     let mut dom = fixtures::dom_from_snippet(fixtures::ENUM_SNIPPET);
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
     manipulator::add_dash_links(&mut dom, &entries);
 
     assert!(first_element_is_dash_anchor(&dom));
@@ -63,7 +59,7 @@ fn it_inserts_dash_anchor_before_enum_entry() {
 fn it_inserts_dash_anchor_before_function_entry() {
     let mut dom = fixtures::dom_from_snippet(fixtures::FUNCTION_SNIPPET);
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
     manipulator::add_dash_links(&mut dom, &entries);
 
     assert!(first_element_is_dash_anchor(&dom));
@@ -73,7 +69,7 @@ fn it_inserts_dash_anchor_before_function_entry() {
 fn it_inserts_dash_anchor_before_macro_entry() {
     let mut dom = fixtures::dom_from_snippet(fixtures::MACRO_SNIPPET);
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
     manipulator::add_dash_links(&mut dom, &entries);
 
     assert!(first_element_is_dash_anchor(&dom));
@@ -83,7 +79,7 @@ fn it_inserts_dash_anchor_before_macro_entry() {
 fn it_inserts_dash_anchor_before_method_entry() {
     let mut dom = fixtures::dom_from_snippet(fixtures::STRUCT_METHOD_SNIPPET);
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
     manipulator::add_dash_links(&mut dom, &entries);
 
     assert!(first_element_is_dash_anchor(&dom));
@@ -93,7 +89,7 @@ fn it_inserts_dash_anchor_before_method_entry() {
 fn it_inserts_dash_anchor_before_module_entry() {
     let mut dom = fixtures::dom_from_snippet(fixtures::MODULE_SNIPPET);
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
     manipulator::add_dash_links(&mut dom, &entries);
 
     assert!(first_element_is_dash_anchor(&dom));
@@ -103,7 +99,7 @@ fn it_inserts_dash_anchor_before_module_entry() {
 fn it_inserts_dash_anchor_before_struct_entry() {
     let mut dom = fixtures::dom_from_snippet(fixtures::STRUCT_SNIPPET);
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
     manipulator::add_dash_links(&mut dom, &entries);
 
     assert!(first_element_is_dash_anchor(&dom));
@@ -113,7 +109,7 @@ fn it_inserts_dash_anchor_before_struct_entry() {
 fn it_inserts_dash_anchor_before_trait_entry() {
     let mut dom = fixtures::dom_from_snippet(fixtures::TRAIT_SNIPPET);
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
     manipulator::add_dash_links(&mut dom, &entries);
 
     assert!(first_element_is_dash_anchor(&dom));
@@ -123,7 +119,7 @@ fn it_inserts_dash_anchor_before_trait_entry() {
 fn it_inserts_dash_anchor_before_type_entry() {
     let mut dom = fixtures::dom_from_snippet(fixtures::TYPE_SNIPPET);
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
     manipulator::add_dash_links(&mut dom, &entries);
 
     assert!(first_element_is_dash_anchor(&dom));

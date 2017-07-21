@@ -5,7 +5,7 @@ fn it_extracts_const_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::CONST_SNIPPET);
 
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
@@ -24,7 +24,7 @@ fn it_extracts_enum_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::ENUM_SNIPPET);
 
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
@@ -43,7 +43,7 @@ fn it_extracts_function_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::FUNCTION_SNIPPET);
 
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
@@ -62,7 +62,7 @@ fn it_extracts_macro_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::MACRO_SNIPPET);
 
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
@@ -81,7 +81,7 @@ fn it_extracts_trait_method_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::TRAIT_METHOD_SNIPPET);
 
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
 
     assert_eq!(entries.len(), 2);
     match entries[1] {
@@ -101,7 +101,7 @@ fn it_extracts_enum_method_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::ENUM_METHOD_SNIPPET);
 
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
 
     assert_eq!(entries.len(), 2);
     match entries[1] {
@@ -121,7 +121,7 @@ fn it_extracts_struct_method_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::STRUCT_METHOD_SNIPPET);
 
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
 
     assert_eq!(entries.len(), 2);
     match entries[1] {
@@ -139,7 +139,7 @@ fn it_extracts_struct_method_entry_correctly() {
 fn it_extracts_module_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::MODULE_SNIPPET);
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
@@ -158,7 +158,7 @@ fn it_extracts_struct_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::STRUCT_SNIPPET);
 
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
@@ -176,7 +176,7 @@ fn it_extracts_struct_entry_correctly() {
 fn it_extracts_trait_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::TRAIT_SNIPPET);
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
@@ -194,7 +194,7 @@ fn it_extracts_trait_entry_correctly() {
 fn it_extracts_type_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::TYPE_SNIPPET);
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
 
     match entries[1] {
         Some(ref e) => {
@@ -211,7 +211,7 @@ fn it_extracts_type_entry_correctly() {
 fn it_extracts_impl_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::IMPL_SNIPPET);
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
 
     assert_eq!(entries.len(), 1);
     match entries[0] {
@@ -227,7 +227,7 @@ fn it_extracts_impl_entry_correctly() {
 fn it_extracts_field_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::FIELD_SNIPPET);
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
 
     match entries[1] {
         Some(ref e) => {
@@ -243,7 +243,7 @@ fn it_extracts_field_entry_correctly() {
 fn it_extracts_variants_entry_correctly() {
     let dom = fixtures::dom_from_snippet(fixtures::VARIANT_SNIPPET);
     let mut entries: Vec<Option<super::Entry>> = Vec::new();
-    parser::walk_tree(&dom.document, String::from(""), &mut entries);
+    parser::walk_tree(&dom.document, "", &mut entries);
 
     match entries[1] {
         Some(ref e) => {

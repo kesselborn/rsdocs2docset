@@ -14,11 +14,11 @@ pub fn add_dash_links(mut dom: &mut RcDom, entries: &[Option<Entry>]) {
             name: qualname!("", "name"),
             value: format_tendril!("{}", entry.anchor_name),
         };
-        let dash_link = dom.create_element(qualname!(html, "a"),
-                                           vec![name_attr, class_attr.clone()]);
+        let dash_link =
+            dom.create_element(qualname!(html, "a"), vec![name_attr, class_attr.clone()]);
 
         if dom.append_before_sibling(entry.handle.clone(), NodeOrText::AppendNode(dash_link))
-              .is_err() {
+            .is_err() {
             println!("error inserting dash link")
         }
     }
