@@ -37,15 +37,6 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
                         }
                     }
 
-                    ("h3", "method stab") => {
-                        if let Some(entry_name) = extract_entry_name(e, "fnname") {
-                            entries.push(Entry::new(e.clone(),
-                                                    "Method",
-                                                    Some(format!("{}::{}", context, entry_name)),
-                                                    false))
-                        }
-                    }
-
                     ("span", "variant") => {
                         if let Some(entry_name_with_parenthesis) =
                             extract_entry_name(e, "invisible") {
