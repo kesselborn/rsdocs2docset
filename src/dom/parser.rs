@@ -118,7 +118,7 @@ pub fn walk_tree(h: &Handle, context: String, entries: &mut Vec<Option<Entry>>) 
         }
 
         walk_tree(e,
-                  current_context.clone().unwrap_or(context.clone()),
+                  current_context.clone().unwrap_or_else(|| context.clone()),
                   entries);
     }
 }
