@@ -1,3 +1,5 @@
+** Note: this project is currently depcrecated as the used servo html parser changed too much to follow up. I will eventually put some time into this but this will not be any time soon :( **
+
 [![Build Status](https://travis-ci.org/kesselborn/rsdocs2docset.svg?branch=master)](https://travis-ci.org/kesselborn/rsdocs2docset) [![Build status](https://ci.appveyor.com/api/projects/status/a33lro8pqv3p2t2x?svg=true)](https://ci.appveyor.com/project/kesselborn/rsdocs2docset)
 
 # rsdocs2docset
